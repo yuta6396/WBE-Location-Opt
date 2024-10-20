@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 import subprocess
 from skopt import gp_minimize
-from skopt.space import Real
+from skopt.space import Integer
 # 時刻を計測するライブラリ
 import time
 import pytz
@@ -26,17 +26,17 @@ BORSのシミュレーション
 #### User 設定変数 ##############
 
 input_var = "MOMY" # MOMY, RHOT, QVから選択
-max_input = bound #20240830現在ではMOMY=30, RHOT=10, QV=0.1にしている
+input_size = 10 # 変更の余地あり
 Alg_vec = ["BO", "RS"]
-num_input_grid = 3 #y=20~20+num_input_grid-1まで制御
+num_input_grid = 1 # ある一つの地点を制御
 Opt_purpose = "MinSum" #MinSum, MinMax, MaxSum, MaxMinから選択
 
-initial_design_numdata_vec = [3] #BOのRS回数
-max_iter_vec = [10, 20, 20, 50, 50, 50]            #{10, 20, 20, 50]=10, 30, 50, 100と同値
+initial_design_numdata_vec = [1] #BOのRS回数
+max_iter_vec = [2]            #{10, 20, 20, 50]=10, 30, 50, 100と同値
 random_iter_vec = max_iter_vec
 
-trial_num = 10  #箱ひげ図作成時の繰り返し回数
-trial_base = 10
+trial_num = 1  #箱ひげ図作成時の繰り返し回数
+trial_base = 0
 
 dpi = 75 # 画像の解像度　スクリーンのみなら75以上　印刷用なら300以上
 colors6  = ['#4c72b0', '#f28e2b', '#55a868', '#c44e52'] # 論文用の色
@@ -101,6 +101,14 @@ def prepare_files(pe: int):
 
 def update_netcdf(init: str, output: str, pe: int, input_values):
     """NetCDFファイルの変数を更新する"""
+    pe_this_y = 0
+    print(input_values)
+    Grid_y = input_values[0]
+    Grid_z = input_values[1]
+    if  Grid_y >= 20:
+        pe_this_y = 1
+        Grid_y -= 20
+
     with netCDF4.Dataset(init) as src, netCDF4.Dataset(output, "w") as dst:
         # グローバル属性のコピー
         dst.setncatts(src.__dict__)
@@ -115,9 +123,8 @@ def update_netcdf(init: str, output: str, pe: int, input_values):
             dst[name].setncatts(src[name].__dict__)
             if name == input_var:
                 var = src[name][:]
-                if pe == 1:
-                    for Ygrid_i in range(num_input_grid):
-                        var[Ygrid_i, 0, 0] += input_values[Ygrid_i]  # (y, x, z)
+                if pe == pe_this_y:  # y=Grid_yのときに変更処理
+                    var[Grid_y, 0, Grid_z] += input_size # (y,x,z)
                 dst[name][:] = var
             else:
                 dst[name][:] = src[name][:]
@@ -236,7 +243,7 @@ config_file_path = os.path.join(base_dir, filename)  # 修正ポイント
 f = open(config_file_path, 'w')
 ##設定メモ##
 f.write(f"input_var ={input_var}")
-f.write(f"\nmax_input ={max_input}")
+f.write(f"{input_size=}")
 f.write(f"\nAlg_vec ={Alg_vec}")
 f.write(f"\nnum_input_grid ={num_input_grid}")
 f.write(f"\nOpt_purpose ={Opt_purpose}")
@@ -257,7 +264,9 @@ BO_file = os.path.join(base_dir, "summary", f"{Alg_vec[0]}.txt")
 RS_file = os.path.join(base_dir, "summary", f"{Alg_vec[1]}.txt")
 progress_file = os.path.join(base_dir, "progress.txt")
 
-
+# bounds に整数の範囲を指定する
+bounds = [Integer(low=0, high=39, prior='uniform', transform='normalize'),  # Y次元目: 0以上40未満の整数 (0～39)
+          Integer(low=0, high=96, prior='uniform', transform='normalize')]  # Z次元目: 0以上97未満の整数 (0～96)
 with open(BO_file, 'w') as f_BO, open(RS_file, 'w') as f_RS,  open(progress_file, 'w') as f_progress:
     for trial_i in range(trial_num):
         f_progress.write(f"\n\n{trial_i=}\n")
@@ -269,11 +278,6 @@ with open(BO_file, 'w') as f_BO, open(RS_file, 'w') as f_RS,  open(progress_file
 
             ###BO
             random_reset(trial_i+trial_base)
-        # 入力次元と最小値・最大値の定義
-            bounds = []
-            
-            for i in range(num_input_grid):
-                bounds.append(Real(-max_input, max_input, name=f'{input_var}_Y{i+20}'))
 
 
             start = time.time()  # 現在時刻（処理開始前）を取得
@@ -324,13 +328,13 @@ with open(BO_file, 'w') as f_BO, open(RS_file, 'w') as f_RS,  open(progress_file
             ###RS
             random_reset(trial_i+trial_base)
             # パラメータの設定
-            bounds_MOMY = [(-max_input, max_input)]*num_input_grid  # 探索範囲
+            # bounds_MOMY = [(-max_input, max_input)]*num_input_grid  # 探索範囲
             start = time.time()  # 現在時刻（処理開始前）を取得
             if exp_i == 0:
-                best_params, best_score = random_search(black_box_function, bounds_MOMY, random_iter_vec[exp_i], f_RS)
+                best_params, best_score = random_search(black_box_function, bounds, random_iter_vec[exp_i], f_RS, num_input_grid)
             else:
                 np.random.rand(int(cnt_base*num_input_grid)) #同じ乱数列の続きを利用したい
-                best_params, best_score = random_search(black_box_function, bounds_MOMY, random_iter_vec[exp_i], f_RS, previous_best=(best_params, best_score))
+                best_params, best_score = random_search(black_box_function, bounds, random_iter_vec[exp_i], f_RS, num_input_grid, previous_best=(best_params, best_score))
             end = time.time()  # 現在時刻（処理完了後）を取得
             time_diff = end - start
 

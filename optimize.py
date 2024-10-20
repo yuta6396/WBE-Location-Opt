@@ -7,7 +7,7 @@ from config import w_max, w_min, gene_length, crossover_rate, mutation_rate, low
 
 #### ブラックボックス最適化手法 ####
 ###ランダムサーチ アルゴリズム
-def random_search(objective_function, bounds, n_iterations, f_RS, previous_best=None):
+def random_search(objective_function, bounds, n_iterations, f_RS, num_input_grid, previous_best=None):
     # 以前の最良のスコアとパラメータを初期化
     input_history=[]
     if previous_best is None:
@@ -16,7 +16,7 @@ def random_search(objective_function, bounds, n_iterations, f_RS, previous_best=
     else:
         best_params, best_score = previous_best
     for _ in range(n_iterations):
-        candidate = [np.random.uniform(b[0], b[1]) for b in bounds]
+        candidate = [np.random.randint(bound.low, bound.high + 1) for bound in bounds]
         input_history.append(candidate)
         score = objective_function(candidate)
         if score < best_score:

@@ -74,6 +74,7 @@ def figure_BarPlot(exp_i:int, target_data:str, data, colors, base_dir, dpi, Alg_
     else:
         raise ValueError(f"予期しないtarget_dataの値: {target_data}")
     plt.grid(True)
+    plt.tight_layout()
     if target_data == "PREC":
         filename = os.path.join(base_dir, "Accumlated-PREC-BarPlot", f"iter={cnt_vec[exp_i]}.png")
     else:
@@ -190,9 +191,10 @@ def figure_time_lapse(control_input, base_dir, odat, dat, nt, anim_varname):
     c1, c2 = 'blue', 'green'
     xl = 'y'
     yl = 'PREC'
+
     # for i in range(1,nt):
-    #     plt.plot(odat[i, 0, :, 0], color=c1, label=l1)
-    #     plt.plot(dat[i, 0, :, 0], color=c2, label=l2)
+    #     plt.plot(odat[i, 0, :, 0], color=c1, label=l1) #PREC
+    #     plt.plot(dat[i, 0, :, 0], color=c2, label=l2) #PREC
     #     plt.xlabel(xl)
     #     plt.ylabel(yl)
     #     plt.title(f"t={(i-1)*time_interval_sec}-{i*time_interval_sec}")
@@ -241,7 +243,7 @@ def figure_time_lapse(control_input, base_dir, odat, dat, nt, anim_varname):
             if t == nt - 1 :
                 plt.colorbar(im, extend='both')
             ims.append(im.collections + [title])
-        
+
     ani = animation.ArtistAnimation(fig, ims, interval=interval)    
     #ani.save(f'{base_dir}/Time_lapse/{formatted_control_input}_{anim_varname}.mp4', writer='ffmpeg') 
     ani.save(f'{base_dir}/Time_lapse/{formatted_control_input}_{anim_varname}.gif', writer='pillow')   

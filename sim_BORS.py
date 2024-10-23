@@ -31,11 +31,11 @@ Alg_vec = ["BO", "RS"]
 num_input_grid = 1 # ある一つの地点を制御
 Opt_purpose = "MinSum" #MinSum, MinMax, MaxSum, MaxMinから選択
 
-initial_design_numdata_vec = [3] #BOのRS回数
-max_iter_vec = [10, 20, 20, 50, 50, 50]            #{10, 20, 20, 50]=10, 30, 50, 100と同値
+initial_design_numdata_vec = [1] #BOのRS回数
+max_iter_vec = [2]            #{10, 20, 20, 50]=10, 30, 50, 100と同値
 random_iter_vec = max_iter_vec
 
-trial_num = 10  #箱ひげ図作成時の繰り返し回数
+trial_num = 1  #箱ひげ図作成時の繰り返し回数
 trial_base = 0
 
 dpi = 75 # 画像の解像度　スクリーンのみなら75以上　印刷用なら300以上
@@ -125,6 +125,7 @@ def update_netcdf(init: str, output: str, pe: int, input_values):
                 var = src[name][:]
                 if pe == pe_this_y:  # y=Grid_yのときに変更処理
                     var[Grid_y, 0, Grid_z] += input_size # (y,x,z)
+                    # var[Grid_y, 0, 0] += input_size # (y,x,z)
                 dst[name][:] = var
             else:
                 dst[name][:] = src[name][:]
@@ -137,7 +138,7 @@ def sim(control_input):
     """
     制御入力決定後に実際にその入力値でシミュレーションする
     """
-    #control_input = [0, 0, 0] # 制御なしを見たいとき
+    control_input = [18, 7] # 
     for pe in range(nofpe):
         init, output = prepare_files(pe)
         init = update_netcdf(init, output, pe, control_input)
@@ -163,19 +164,19 @@ def sim(control_input):
         if pe == 0:
             dat = np.zeros((nt, nz, fny*ny, fnx*nx))
             odat = np.zeros((nt, nz, fny*ny, fnx*nx))
-            MOMY_dat = np.zeros((nt, nz, fny*ny, fnx*nx))
-            MOMY_no_dat = np.zeros((nt, nz, fny*ny, fnx*nx)) 
-            QHYD_dat = np.zeros((nt, nz, fny*ny, fnx*nx))
-            QHYD_no_dat = np.zeros((nt, nz, fny*ny, fnx*nx)) 
+            # MOMY_dat = np.zeros((nt, nz, fny*ny, fnx*nx))
+            # MOMY_no_dat = np.zeros((nt, nz, fny*ny, fnx*nx)) 
+            # QHYD_dat = np.zeros((nt, nz, fny*ny, fnx*nx))
+            # QHYD_no_dat = np.zeros((nt, nz, fny*ny, fnx*nx)) 
         # print(nc.variables.keys()) 
         dat[:, 0, gy1:gy2, gx1:gx2] = nc[varname][:]
         odat[:, 0, gy1:gy2, gx1:gx2] = onc[varname][:]
         # MOMYの時.ncには'V'で格納される
-        MOMY_dat[:, :, gy1:gy2, gx1:gx2] = nc['V'][:]
-        MOMY_no_dat[:, :, gy1:gy2, gx1:gx2] = onc['V'][:]
+        # MOMY_dat[:, :, gy1:gy2, gx1:gx2] = nc['V'][:]
+        # MOMY_no_dat[:, :, gy1:gy2, gx1:gx2] = onc['V'][:]
 
-        QHYD_dat[:, :, gy1:gy2, gx1:gx2] = nc['QHYD'][:]
-        QHYD_no_dat[:, :, gy1:gy2, gx1:gx2] = onc['QHYD'][:]
+        # QHYD_dat[:, :, gy1:gy2, gx1:gx2] = nc['QHYD'][:]
+        # QHYD_no_dat[:, :, gy1:gy2, gx1:gx2] = onc['QHYD'][:]
     # 各時刻までの平均累積降水量をplot 
     # print(nc[varname].shape)
     # print(nc['V'].shape)
@@ -264,9 +265,12 @@ BO_file = os.path.join(base_dir, "summary", f"{Alg_vec[0]}.txt")
 RS_file = os.path.join(base_dir, "summary", f"{Alg_vec[1]}.txt")
 progress_file = os.path.join(base_dir, "progress.txt")
 
-# bounds に整数の範囲を指定する
+# bounds に整数の範囲を指定する highまで探索範囲であることに注意
 bounds = [Integer(low=0, high=39, prior='uniform', transform='normalize'),  # Y次元目: 0以上40未満の整数 (0～39)
           Integer(low=0, high=96, prior='uniform', transform='normalize')]  # Z次元目: 0以上97未満の整数 (0～96)
+
+# # bounds に整数の範囲を指定する
+# bounds = [Integer(low=0, high=39, prior='uniform', transform='normalize')]  # Y次元目: 0以上40未満の整数 (0～39)
 with open(BO_file, 'w') as f_BO, open(RS_file, 'w') as f_RS,  open(progress_file, 'w') as f_progress:
     for trial_i in range(trial_num):
         f_progress.write(f"\n\n{trial_i=}\n")
@@ -322,6 +326,7 @@ with open(BO_file, 'w') as f_BO, open(RS_file, 'w') as f_RS,  open(progress_file
             sum_co, sum_no = sim(min_input)
             SUM_no = sum_no
             BO_ratio_matrix[exp_i, trial_i] = calculate_PREC_rate(sum_co, sum_no)
+            print(BO_ratio_matrix[exp_i, trial_i])
             BO_time_matrix[exp_i, trial_i] = time_diff
 
 

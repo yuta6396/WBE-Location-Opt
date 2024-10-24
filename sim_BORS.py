@@ -6,6 +6,7 @@ import matplotlib
 import subprocess
 from skopt import gp_minimize
 from skopt.space import Integer
+from skopt.plots import plot_convergence, plot_objective
 # 時刻を計測するライブラリ
 import time
 import pytz
@@ -26,24 +27,27 @@ BORSのシミュレーション
 #### User 設定変数 ##############
 
 input_var = "MOMY" # MOMY, RHOT, QVから選択
-input_size = 10 # 変更の余地あり
+input_size = 0 # 変更の余地あり
 Alg_vec = ["BO", "RS"]
 num_input_grid = 1 # ある一つの地点を制御
 Opt_purpose = "MinSum" #MinSum, MinMax, MaxSum, MaxMinから選択
+# bounds に整数の範囲を指定する highまで探索範囲であることに注意
+bounds = [Integer(low=0, high=39, prior='uniform', transform='normalize', name = "Y-grid"),  # Y次元目: 0以上40未満の整数 (0～39)
+          Integer(low=0, high=10, prior='uniform', transform='normalize', name = "Z-grid")]  # Z次元目: 0以上97未満の整数 (0～96)
 
-initial_design_numdata_vec = [10] #BOのRS回数
-max_iter_vec = [15, 15, 20, 50, 50, 50]            #{10, 20, 20, 50]=10, 30, 50, 100と同値
+initial_design_numdata_vec = [2] #BOのRS回数
+max_iter_vec = [5, 5, 20, 20]            #{10, 20, 20, 50]=10, 30, 50, 100と同値
 random_iter_vec = max_iter_vec
 
-trial_num = 5  #箱ひげ図作成時の繰り返し回数
-trial_base = 10
+trial_num = 1  #箱ひげ図作成時の繰り返し回数
+trial_base = 0
 
-dpi = 75 # 画像の解像度　スクリーンのみなら75以上　印刷用なら300以上
+dpi = 300 # 画像の解像度　スクリーンのみなら75以上　印刷用なら300以上
 colors6  = ['#4c72b0', '#f28e2b', '#55a868', '#c44e52'] # 論文用の色
 ###############################
 jst = pytz.timezone('Asia/Tokyo')# 日本時間のタイムゾーンを設定
 current_time = datetime.now(jst).strftime("%m-%d-%H-%M")
-base_dir = f"result/BORS/{current_time}/"
+base_dir = f"test_result/BORS/{input_var}={input_size}_{current_time}/"
 
 cnt_vec = np.zeros(len(max_iter_vec))
 for i in range(len(max_iter_vec)):
@@ -235,6 +239,24 @@ def black_box_function(control_input):
 
     return objective_val
 
+def BO_result_save(result, exp_i, trial_i):
+    # パラメータごとの評価結果をプロット
+    plt.figure(figsize=(5, 5))
+    plot_convergence(result)
+    plt.title('convergence status')
+    plt.xlabel('Function evaluation times')
+    plt.ylabel('Best cross-validation score')
+    plt.savefig(f"{base_dir}BO_fig/convergence_{cnt_vec[exp_i]}_trial{trial_i}.png", dpi = dpi)
+    plt.close()
+    # パラメータ空間の探索状況を可視化
+    fig, ax = plt.subplots(figsize=(8, 5))
+    plot_objective(result, ax= ax)
+    ax.grid(True)
+    ax.set_xlabel('Y') 
+    ax.set_ylabel('Z')  
+    plt.savefig(f"{base_dir}BO_fig/objective_{cnt_vec[exp_i]}_trial{trial_i}.png", dpi = dpi)
+    plt.close(fig)
+    return
 
 ###実行
 make_directory(base_dir)
@@ -244,10 +266,11 @@ config_file_path = os.path.join(base_dir, filename)  # 修正ポイント
 f = open(config_file_path, 'w')
 ##設定メモ##
 f.write(f"input_var ={input_var}")
-f.write(f"{input_size=}")
+f.write(f"\n{input_size=}")
 f.write(f"\nAlg_vec ={Alg_vec}")
 f.write(f"\nnum_input_grid ={num_input_grid}")
 f.write(f"\nOpt_purpose ={Opt_purpose}")
+f.write(f"\n{bounds=}")
 f.write(f"\ninitial_design_numdata_vec = {initial_design_numdata_vec}")
 f.write(f"\nmax_iter_vec = {max_iter_vec}")
 f.write(f"\nrandom_iter_vec = {random_iter_vec}")
@@ -256,35 +279,28 @@ f.write(f"\n{trial_base=}")
 f.write(f"\n{time_interval_sec=}")
 ################
 f.close()
-
-BO_ratio_matrix = np.zeros((len(max_iter_vec), trial_num)) # iterの組み合わせ, 試行回数
-RS_ratio_matrix = np.zeros((len(max_iter_vec), trial_num))
-BO_time_matrix = np.zeros((len(max_iter_vec), trial_num)) 
-RS_time_matrix = np.zeros((len(max_iter_vec), trial_num))
+exp_size =len(max_iter_vec)
+BO_ratio_matrix = np.zeros((exp_size, trial_num)) # iterの組み合わせ, 試行回数
+RS_ratio_matrix = np.zeros((exp_size, trial_num))
+BO_time_matrix = np.zeros((exp_size, trial_num)) 
+RS_time_matrix = np.zeros((exp_size, trial_num))
 
 BO_file = os.path.join(base_dir, "summary", f"{Alg_vec[0]}.txt")
 RS_file = os.path.join(base_dir, "summary", f"{Alg_vec[1]}.txt")
-progress_file = os.path.join(base_dir, "progress.txt")
 
-# bounds に整数の範囲を指定する highまで探索範囲であることに注意
-bounds = [Integer(low=0, high=39, prior='uniform', transform='normalize'),  # Y次元目: 0以上40未満の整数 (0～39)
-          Integer(low=0, high=96, prior='uniform', transform='normalize')]  # Z次元目: 0以上97未満の整数 (0～96)
 
 # # bounds に整数の範囲を指定する
 # bounds = [Integer(low=0, high=39, prior='uniform', transform='normalize')]  # Y次元目: 0以上40未満の整数 (0～39)
-with open(BO_file, 'w') as f_BO, open(RS_file, 'w') as f_RS,  open(progress_file, 'w') as f_progress:
+with open(BO_file, 'w') as f_BO, open(RS_file, 'w') as f_RS:
     for trial_i in range(trial_num):
-        f_progress.write(f"\n\n{trial_i=}\n")
         cnt_base = 0
-        for exp_i in range(len(max_iter_vec)):
-            f_progress.write(f"{exp_i=},  ")
+        for exp_i in range(exp_size):
+            print(f"乱数種：{trial_i}, 関数評価回数の上限：{cnt_vec[exp_i]}")
             if exp_i > 0:
                 cnt_base  = cnt_vec[exp_i - 1]
 
             ###BO
             random_reset(trial_i+trial_base)
-
-
             start = time.time()  # 現在時刻（処理開始前）を取得
             # ベイズ最適化の実行
             if exp_i == 0:
@@ -313,7 +329,7 @@ with open(BO_file, 'w') as f_BO, open(RS_file, 'w') as f_RS,  open(progress_file
                 )           
             end = time.time()  # 現在時刻（処理完了後）を取得
             time_diff = end - start
-            # 最適解の取得
+            # 最適解の取得と記録
             min_value = result.fun
             min_input = result.x
             initial_x_iters = result.x_iters
@@ -324,13 +340,15 @@ with open(BO_file, 'w') as f_BO, open(RS_file, 'w') as f_RS,  open(progress_file
             f_BO.write(f"\n入力値:{min_input}")
             f_BO.write(f"\n経過時間:{time_diff}sec")
             f_BO.write(f"\nnum_evaluation of BBF = {cnt_vec[exp_i]}")
+            BO_result_save(result, exp_i, trial_i)
+
             sum_co, sum_no = sim(min_input)
             SUM_no = sum_no
             BO_ratio_matrix[exp_i, trial_i] = calculate_PREC_rate(sum_co, sum_no)
             print(BO_ratio_matrix[exp_i, trial_i])
             BO_time_matrix[exp_i, trial_i] = time_diff
 
-
+            print(f"乱数種：{trial_i}, 関数評価回数の上限：{cnt_vec[exp_i]}")
             ###RS
             random_reset(trial_i+trial_base)
             # パラメータの設定

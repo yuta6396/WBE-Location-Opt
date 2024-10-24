@@ -31,12 +31,12 @@ Alg_vec = ["BO", "RS"]
 num_input_grid = 1 # ある一つの地点を制御
 Opt_purpose = "MinSum" #MinSum, MinMax, MaxSum, MaxMinから選択
 
-initial_design_numdata_vec = [1] #BOのRS回数
-max_iter_vec = [2]            #{10, 20, 20, 50]=10, 30, 50, 100と同値
+initial_design_numdata_vec = [10] #BOのRS回数
+max_iter_vec = [15, 15, 20, 50, 50, 50]            #{10, 20, 20, 50]=10, 30, 50, 100と同値
 random_iter_vec = max_iter_vec
 
-trial_num = 1  #箱ひげ図作成時の繰り返し回数
-trial_base = 0
+trial_num = 5  #箱ひげ図作成時の繰り返し回数
+trial_base = 10
 
 dpi = 75 # 画像の解像度　スクリーンのみなら75以上　印刷用なら300以上
 colors6  = ['#4c72b0', '#f28e2b', '#55a868', '#c44e52'] # 論文用の色
@@ -125,7 +125,7 @@ def update_netcdf(init: str, output: str, pe: int, input_values):
                 var = src[name][:]
                 if pe == pe_this_y:  # y=Grid_yのときに変更処理
                     var[Grid_y, 0, Grid_z] += input_size # (y,x,z)
-                    # var[Grid_y, 0, 0] += input_size # (y,x,z)
+                    # var[Grid_y, 0, Grid_z] *= (1-intervation_size) (0~1)
                 dst[name][:] = var
             else:
                 dst[name][:] = src[name][:]
@@ -138,7 +138,7 @@ def sim(control_input):
     """
     制御入力決定後に実際にその入力値でシミュレーションする
     """
-    control_input = [18, 7] # 
+    #control_input = [18, 7] # 
     for pe in range(nofpe):
         init, output = prepare_files(pe)
         init = update_netcdf(init, output, pe, control_input)
@@ -252,6 +252,7 @@ f.write(f"\ninitial_design_numdata_vec = {initial_design_numdata_vec}")
 f.write(f"\nmax_iter_vec = {max_iter_vec}")
 f.write(f"\nrandom_iter_vec = {random_iter_vec}")
 f.write(f"\ntrial_num = {trial_num}")
+f.write(f"\n{trial_base=}")
 f.write(f"\n{time_interval_sec=}")
 ################
 f.close()

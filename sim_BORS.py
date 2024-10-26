@@ -26,20 +26,20 @@ BORSのシミュレーション
 
 #### User 設定変数 ##############
 
-input_var = "MOMY" # MOMY, RHOT, QVから選択
-input_size = 0 # 変更の余地あり
+input_var = "QV" # MOMY, RHOT, QVから選択
+input_size = 0.1 # 変更の余地あり
 Alg_vec = ["BO", "RS"]
 num_input_grid = 1 # ある一つの地点を制御
 Opt_purpose = "MinSum" #MinSum, MinMax, MaxSum, MaxMinから選択
 # bounds に整数の範囲を指定する highまで探索範囲であることに注意
 bounds = [Integer(low=0, high=39, prior='uniform', transform='normalize', name = "Y-grid"),  # Y次元目: 0以上40未満の整数 (0～39)
-          Integer(low=0, high=10, prior='uniform', transform='normalize', name = "Z-grid")]  # Z次元目: 0以上97未満の整数 (0～96)
+          Integer(low=0, high=96, prior='uniform', transform='normalize', name = "Z-grid")]  # Z次元目: 0以上97未満の整数 (0～96)
 
-initial_design_numdata_vec = [2] #BOのRS回数
-max_iter_vec = [5, 5, 20, 20]            #{10, 20, 20, 50]=10, 30, 50, 100と同値
+initial_design_numdata_vec = [10] #BOのRS回数
+max_iter_vec = [15, 15, 20, 50, 50, 50]            #{10, 20, 20, 50]=10, 30, 50, 100と同値
 random_iter_vec = max_iter_vec
 
-trial_num = 1  #箱ひげ図作成時の繰り返し回数
+trial_num = 20  #箱ひげ図作成時の繰り返し回数
 trial_base = 0
 
 dpi = 300 # 画像の解像度　スクリーンのみなら75以上　印刷用なら300以上
@@ -47,7 +47,7 @@ colors6  = ['#4c72b0', '#f28e2b', '#55a868', '#c44e52'] # 論文用の色
 ###############################
 jst = pytz.timezone('Asia/Tokyo')# 日本時間のタイムゾーンを設定
 current_time = datetime.now(jst).strftime("%m-%d-%H-%M")
-base_dir = f"test_result/BORS/{input_var}={input_size}_{current_time}/"
+base_dir = f"result/BORS/{input_var}={input_size}_{current_time}/"
 
 cnt_vec = np.zeros(len(max_iter_vec))
 for i in range(len(max_iter_vec)):
@@ -340,7 +340,7 @@ with open(BO_file, 'w') as f_BO, open(RS_file, 'w') as f_RS:
             f_BO.write(f"\n入力値:{min_input}")
             f_BO.write(f"\n経過時間:{time_diff}sec")
             f_BO.write(f"\nnum_evaluation of BBF = {cnt_vec[exp_i]}")
-            BO_result_save(result, exp_i, trial_i)
+            # BO_result_save(result, exp_i, trial_i)
 
             sum_co, sum_no = sim(min_input)
             SUM_no = sum_no

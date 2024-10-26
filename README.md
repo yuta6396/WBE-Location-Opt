@@ -32,6 +32,7 @@ Warm Bubble Experimentを用いたシミュレーション. 目的関数:累積�
                 - Line-Graph
                 - Time-BarPlot
                 - Time_lapse 各時間帯の累積降水量
+                - BO_fig BO探索過程の可視化
                 - summary
         - PSOGA
 
@@ -39,20 +40,15 @@ Warm Bubble Experimentを用いたシミュレーション. 目的関数:累積�
 - 制御変数の変更
     - MOMY  (-30~30)
     - RHOT  (-10~10)
-    - QV    (-0.1~0.1)
-
-- 制御グリッドの変更
-    - y=20~20+num_grid
-    - z=0
+    - QV    (-0.1~0.1)程度
 
 
 - 制御目的の変更
     - 観測できる全範囲（y=0~39）の累積降水量の（最小化/最大化）
     - 最大累積降水量地点（y=y'）の累積降水量（最小化/最大化）
 
-## ブラックボックス最適化手法の実装方法（講演会用の設定）
+## ブラックボックス最適化手法の実装方法
 乱数種を10種類用意しシミュレーションを実行。
-
         np.random.seed(trial_i) 
         random.seed(trial_i) 
      
@@ -86,3 +82,4 @@ LDIWMを採用（w_max=0.9, w_min=0.4, c1=c2=2.0）
 ## メモ
 - 制御前とinput=0の制御後のPRECの値が異なるのはなんでか
 - 12個あるはずの.mp4が6個しかない　BOかRSどっちかしか保存されていないor上書き
+- test_result とresultの使い分け

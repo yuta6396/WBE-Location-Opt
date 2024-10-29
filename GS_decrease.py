@@ -27,8 +27,8 @@ matplotlib.use('Agg')
 
 #### User 設定変数 ##############
 
-input_var = "MOMY" # MOMY, RHOT, QVから選択
-decrease_rate = 0.1
+input_var = "QV" # MOMY, RHOT, QVから選択
+decrease_rate = 2
 Alg_vec = ["GS"]
 num_input_grid = 1 # ある一つの地点を制御
 Opt_purpose = "MinSum" #MinSum, MinMax, MaxSum, MaxMinから選択

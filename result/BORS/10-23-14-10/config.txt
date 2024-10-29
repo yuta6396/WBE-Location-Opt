@@ -1,9 +1,0 @@
-input_var =MOMYinput_size=30
-Alg_vec =['BO', 'RS']
-num_input_grid =1
-Opt_purpose =MinSum
-initial_design_numdata_vec = [10]
-max_iter_vec = [15, 15, 20, 50, 50, 50]
-random_iter_vec = [15, 15, 20, 50, 50, 50]
-trial_num = 10
-time_interval_sec=300

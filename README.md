@@ -13,6 +13,8 @@ Warm Bubble Experimentを用いたシミュレーション. 目的関数:累積�
 
     - sim_PSOGA.py
 
+    - GS.py グリッドサーチ
+
     - optimize.py ブラックボックス最適化手法の実装
 
     - analysis.py シミュレーション後の処理

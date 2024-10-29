@@ -6,6 +6,8 @@ import matplotlib
 import subprocess
 from skopt import gp_minimize
 from skopt.space import Integer
+import pandas as pd
+import seaborn as sns
 # 時刻を計測するライブラリ
 import time
 import pytz
@@ -26,7 +28,7 @@ BORSのシミュレーション
 #### User 設定変数 ##############
 
 input_var = "MOMY" # MOMY, RHOT, QVから選択
-input_size = 10 # 変更の余地あり
+input_size = -1 # 変更の余地あり
 Alg_vec = ["GS"]
 num_input_grid = 1 # ある一つの地点を制御
 Opt_purpose = "MinSum" #MinSum, MinMax, MaxSum, MaxMinから選択
@@ -36,7 +38,6 @@ colors6  = ['#4c72b0', '#f28e2b', '#55a868', '#c44e52'] # 論文用の色
 ###############################
 jst = pytz.timezone('Asia/Tokyo')# 日本時間のタイムゾーンを設定
 current_time = datetime.now(jst).strftime("%m-%d-%H-%M")
-base_dir = f"result/BORS/{current_time}/"
 
 """
 gp_minimize で獲得関数を指定: acq_func。
@@ -172,30 +173,47 @@ def sim(control_input):
 def grid_search(objective_function):
     best_score = float('inf')
     best_params = None
+    # 結果を保存するためのリスト
+    results = []
     
     # 各組み合わせについて評価
     cnt = 0
     for y_i in range(0, 40):
         for z_i in range(0,97):
             score = objective_function([y_i, z_i])
+            score = 100*score/96.50 # 大体で制御なし⇒100%
+            results.append({'Y': y_i, 'Z': z_i, 'score': score})
+
             cnt += 1
             if score < best_score:
                 best_score = score
                 best_params = [y_i, z_i]
                 f.write(f"\ncnt={cnt}: params=[{y_i}, {z_i}],  best_score={best_score}")
-    return best_params, best_score
+    # 結果をデータフレームに変換
+    results_df = pd.DataFrame(results)
+    # ピボットテーブルの作成
+    scores_pivot = results_df.pivot(index='Z', columns='Y', values='score')
+    scores_pivot = scores_pivot.iloc[::-1]
+    return best_params, best_score, scores_pivot
 
 
 ###実行
-dirname = f"result/GS/{input_var}_{input_size}_YZ"
+dirname = f"result/GS/{input_var}={input_size}_{current_time}"
 os.makedirs(dirname, exist_ok=True)
 output_file_path = os.path.join(dirname, f'summary.txt')
 f = open(output_file_path, 'w')
 
 # グリッドサーチの実行
-best_params, best_score = grid_search(sim)
+best_params, best_score, scores_pivot = grid_search(sim)
 
 f.write(f"\nBest parameters: {best_params}\n")
 print(f"Best score: {best_score}")
-#sim(best_params)
+# ヒートマップの描画
+plt.figure(figsize=(8, 6))
+sns.heatmap(scores_pivot, annot=False, cmap='viridis_r') # annot=Trueだと具体的な値表示
+plt.title(f'Grid Search Accumulated PREC (%) Input:{input_var}={input_size}')
+plt.xlabel('Y')
+plt.ylabel('Z')
+plt.savefig(f"{dirname}/heatmap.png", dpi = 300)
+
 f.close()

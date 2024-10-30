@@ -26,7 +26,27 @@ def random_search(objective_function, bounds, n_iterations, f_RS, num_input_grid
 
     return best_params, best_score
 
+def random_search_YZI(objective_function, bounds, bounds_input, n_iterations, f_RS, num_input_grid, previous_best=None):
+    # 以前の最良のスコアとパラメータを初期化
+    input_history=[]
+    if previous_best is None:
+        best_score = float('inf')
+        best_params = None
+    else:
+        best_params, best_score = previous_best
+    for _ in range(n_iterations):
+        candidate =[]
+        candidate.append(np.random.randint(bounds[0].low, bounds[0].high + 1))
+        candidate.append(np.random.randint(bounds[1].low, bounds[1].high + 1))
+        candidate.append(np.random.uniform(bounds_input[0][0], bounds_input[0][1]))
+        input_history.append(candidate)
+        score = objective_function(candidate)
+        if score < best_score:
+            best_score = score
+            best_params = candidate
+    f_RS.write(f"\n input_history \n{input_history}")
 
+    return best_params, best_score
 ###PSO アルゴリズム
 
 # 粒子の初期化

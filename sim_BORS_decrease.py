@@ -28,14 +28,14 @@ BORSのシミュレーション
 
 #### User 設定変数 ##############
 
-input_var = "MOMY" # MOMY, RHOT, QVから選択
-decrease_rate = 0.1
+input_var = "QV" # MOMY, RHOT, QVから選択
+decrease_rate = 0.5
 Alg_vec = ["BO", "RS"]
 num_input_grid = 1 # ある一つの地点を制御
 Opt_purpose = "MinSum" #MinSum, MinMax, MaxSum, MaxMinから選択
 # bounds に整数の範囲を指定する highまで探索範囲であることに注意
-bounds = [Integer(low=0, high=2, prior='uniform', transform='normalize', name = "Y-grid"),  # Y次元目: 0以上40未満の整数 (0～39)
-          Integer(low=0, high=5, prior='uniform', transform='normalize', name = "Z-grid")]  # Z次元目: 0以上97未満の整数 (0～96)
+bounds = [Integer(low=0, high=39, prior='uniform', transform='normalize', name = "Y-grid"),  # Y次元目: 0以上40未満の整数 (0～39)
+          Integer(low=0, high=96, prior='uniform', transform='normalize', name = "Z-grid")]  # Z次元目: 0以上97未満の整数 (0～96)
 
 initial_design_numdata_vec = [10] #BOのRS回数
 max_iter_vec = [15, 15, 20, 50, 50, 50]            #{10, 20, 20, 50]=10, 30, 50, 100と同値
@@ -268,7 +268,7 @@ config_file_path = os.path.join(base_dir, filename)  # 修正ポイント
 f = open(config_file_path, 'w')
 ##設定メモ##
 f.write(f"input_var ={input_var}")
-f.write(f"\n{input_size=}")
+f.write(f"\n{decrease_rate=}")
 f.write(f"\nAlg_vec ={Alg_vec}")
 f.write(f"\nnum_input_grid ={num_input_grid}")
 f.write(f"\nOpt_purpose ={Opt_purpose}")

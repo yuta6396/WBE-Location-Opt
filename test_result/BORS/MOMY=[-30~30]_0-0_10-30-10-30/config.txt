@@ -1,0 +1,12 @@
+input_var =MOMY
+max_input_size=30
+Alg_vec =['BO', 'RS']
+num_input_grid =1
+Opt_purpose =MinSum
+bounds=[Integer(low=0, high=39, prior='uniform', transform='normalize'), Integer(low=0, high=96, prior='uniform', transform='normalize'), Real(low=-30, high=30, prior='uniform', transform='identity')]
+initial_design_numdata_vec = [2]
+max_iter_vec = [3]
+random_iter_vec = [3]
+trial_num = 1
+trial_base=0
+time_interval_sec=300

@@ -19,12 +19,14 @@ matplotlib.use('Agg')
 
 """
 PSOGAのシミュレーション
+
+とりあえず、ただ丸めてみる
 """
 
 #### User 設定変数 ##############
 
 input_var = "RHOT" # MOMY, RHOT, QVから選択
-max_input = bound
+input_size = 1 # 変更の余地あり
 Alg_vec = ["PSO", "GA"]
 num_input_grid = 3 #y=20~20+num_input_grid-1まで制御
 Opt_purpose = "MinSum" #MinSum, MinMax, MaxSum, MaxMinから選択
@@ -39,13 +41,14 @@ c1 = 2.0
 c2 = 2.0
 
 trial_num = 10  # 乱数種の数
+trial_base = 0
 
 dpi = 75 # 画像の解像度　スクリーンのみなら75以上　印刷用なら300以上
 colors6  = ['#4c72b0', '#f28e2b', '#55a868', '#c44e52'] # 論文用の色
 ###############################
 jst = pytz.timezone('Asia/Tokyo')# 日本時間のタイムゾーンを設定
 current_time = datetime.now(jst).strftime("%m-%d-%H-%M")
-base_dir = f"result/PSOGA/{current_time}/"
+base_dir = f"result/PSOGA/{input_var}={input_size}_{trial_base}-{trial_base+trial_num -1}_{current_time}/"
 cnt_vec = np.zeros(len(particles_vec))
 for i in range(len(particles_vec)):
      cnt_vec[i] = int(particles_vec[i])*int(iterations_vec[i])
@@ -85,6 +88,14 @@ def prepare_files(pe: int):
 
 def update_netcdf(init: str, output: str, pe: int, input_values):
     """NetCDFファイルの変数を更新する"""
+    pe_this_y = 0
+    print(input_values)
+    Grid_y = input_values[0]
+    Grid_z = input_values[1]
+    if  Grid_y >= 20:
+        pe_this_y = 1
+        Grid_y -= 20
+
     with netCDF4.Dataset(init) as src, netCDF4.Dataset(output, "w") as dst:
         # グローバル属性のコピー
         dst.setncatts(src.__dict__)
@@ -99,9 +110,8 @@ def update_netcdf(init: str, output: str, pe: int, input_values):
             dst[name].setncatts(src[name].__dict__)
             if name == input_var:
                 var = src[name][:]
-                if pe == 1:
-                    for Ygrid_i in range(num_input_grid):
-                        var[Ygrid_i, 0, 0] += input_values[Ygrid_i]  # (y, x, z)
+                if pe == pe_this_y:
+                    var[Grid_y, 0,Grid_z] += input_size # (y, x, z)
                 dst[name][:] = var
             else:
                 dst[name][:] = src[name][:]
@@ -145,11 +155,11 @@ def sim(control_input):
         dat[:, 0, gy1:gy2, gx1:gx2] = nc[varname][:]
         odat[:, 0, gy1:gy2, gx1:gx2] = onc[varname][:]
         # MOMYの時.ncには'V'で格納される
-        control_dat[:, :, gy1:gy2, gx1:gx2] = nc['V'][:]
-        no_control_odat[:, :, gy1:gy2, gx1:gx2] = onc['V'][:]
-    # 各時刻までの平均累積降水量をplot 
-    figure_time_lapse(control_input, base_dir, odat, dat, nt, varname)
-    figure_time_lapse(control_input, base_dir, no_control_odat, control_dat, nt, input_var)
+    #     control_dat[:, :, gy1:gy2, gx1:gx2] = nc['V'][:]
+    #     no_control_odat[:, :, gy1:gy2, gx1:gx2] = onc['V'][:]
+    # # 各時刻までの平均累積降水量をplot 
+    # figure_time_lapse(control_input, base_dir, odat, dat, nt, varname)
+    # figure_time_lapse(control_input, base_dir, no_control_odat, control_dat, nt, input_var)
         
     sum_co=np.zeros(40) #制御後の累積降水量
     sum_no=np.zeros(40) #制御前の累積降水量
@@ -207,7 +217,7 @@ config_file_path = os.path.join(base_dir, filename)  # 修正ポイント
 f = open(config_file_path, 'w')
 ###設定メモ###
 f.write(f"\ninput_var ={input_var}")
-f.write(f"\nmax_input ={max_input}")
+f.write(f"\n{input_size=}")
 f.write(f"\nAlg_vec ={Alg_vec}")
 f.write(f"\nnum_input_grid ={num_input_grid}")
 f.write(f"\nOpt_purpose ={Opt_purpose}")
@@ -217,6 +227,7 @@ f.write(f"\npop_size_vec = {pop_size_vec}")
 f.write(f"\nnum_generations_vec = {num_generations_vec}")
 f.write(f"\ncnt_vec = {cnt_vec}")
 f.write(f"\ntrial_num = {trial_num}\n")
+f.write(f"{trial_base=}\n")
 f.write(f"w_max={w_max}\n")
 f.write(f"w_min={w_min}\n")
 f.write(f"c1={c1}\n")
@@ -228,31 +239,29 @@ f.write(f"lower_bound={lower_bound}\n")
 f.write(f"upper_bound={upper_bound}\n")
 f.write(f"alpha={alpha}\n")
 f.write(f"tournament_size={tournament_size}\n")
-f.write(f"trial_num={trial_num}\n")
 f.write(f"{dpi=}")
 f.write(f"\n{time_interval_sec=}")
 ################
 f.close()
-
-PSO_ratio_matrix = np.zeros((len(particles_vec), trial_num))
-GA_ratio_matrix = np.zeros((len(particles_vec), trial_num))
-PSO_time_matrix = np.zeros((len(particles_vec), trial_num))
-GA_time_matrix = np.zeros((len(particles_vec), trial_num))
+exp_size =len(particles_vec)
+PSO_ratio_matrix = np.zeros((exp_size, trial_num))
+GA_ratio_matrix = np.zeros((exp_size, trial_num))
+PSO_time_matrix = np.zeros((exp_size, trial_num))
+GA_time_matrix = np.zeros((exp_size, trial_num))
 
 PSO_file = os.path.join(base_dir, "summary", f"{Alg_vec[0]}.txt")
 GA_file = os.path.join(base_dir, "summary", f"{Alg_vec[1]}.txt")
-progress_file = os.path.join(base_dir, "progress.txt")
 
-with open(PSO_file, 'w') as f_PSO, open(GA_file, 'w') as f_GA,  open(progress_file, 'w') as f_progress:
+with open(PSO_file, 'w') as f_PSO, open(GA_file, 'w') as f_GA:
     for trial_i in range(trial_num):
         f_progress.write(f"\n\n{trial_i=}\n")
         cnt_base = 0
-        for exp_i in range(len(particles_vec)):
+        for exp_i in range(exp_size):
             f_progress.write(f"{exp_i=},  ")
             if exp_i > 0:
                 cnt_base  = cnt_vec[exp_i - 1]
 
-
+            print(f"乱数種：{trial_i}, 関数評価回数の上限：{cnt_vec[exp_i]}")
             ###PSO
             random_reset(trial_i)
             # 入力次元と最小値・最大値の定義
@@ -272,7 +281,7 @@ with open(PSO_file, 'w') as f_PSO, open(GA_file, 'w') as f_GA,  open(progress_fi
             PSO_ratio_matrix[exp_i, trial_i] = calculate_PREC_rate(sum_co, sum_no)
             PSO_time_matrix[exp_i, trial_i] = time_diff
 
-
+            print(f"乱数種：{trial_i}, 関数評価回数の上限：{cnt_vec[exp_i]}")
             ###GA
             random_reset(trial_i)
             # パラメータの設定

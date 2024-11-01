@@ -27,7 +27,7 @@ BORSのシミュレーション
 #### User 設定変数 ##############
 
 input_var = "MOMY" # MOMY, RHOT, QVから選択
-input_size = 1 # 変更の余地あり
+input_size = 10 # 変更の余地あり
 Alg_vec = ["BO", "RS"]
 num_input_grid = 1 # ある一つの地点を制御
 Opt_purpose = "MinSum" #MinSum, MinMax, MaxSum, MaxMinから選択
@@ -35,11 +35,12 @@ Opt_purpose = "MinSum" #MinSum, MinMax, MaxSum, MaxMinから選択
 bounds = [Integer(low=0, high=39, prior='uniform', transform='normalize', name = "Y-grid"),  # Y次元目: 0以上40未満の整数 (0～39)
           Integer(low=0, high=96, prior='uniform', transform='normalize', name = "Z-grid")]  # Z次元目: 0以上97未満の整数 (0～96)
 
+BO_acq_func = "LCB" #gp_hedge, PI, EI, LCB
 initial_design_numdata_vec = [10] #BOのRS回数
 max_iter_vec = [15, 15, 20, 50, 50, 50]            #{10, 20, 20, 50]=10, 30, 50, 100と同値
 random_iter_vec = max_iter_vec
 
-trial_num = 1  #箱ひげ図作成時の繰り返し回数
+trial_num = 10  #箱ひげ図作成時の繰り返し回数
 trial_base = 0
 
 dpi = 300 # 画像の解像度　スクリーンのみなら75以上　印刷用なら300以上
@@ -273,6 +274,7 @@ f.write(f"\nOpt_purpose ={Opt_purpose}")
 f.write(f"\n{bounds=}")
 f.write(f"\ninitial_design_numdata_vec = {initial_design_numdata_vec}")
 f.write(f"\nmax_iter_vec = {max_iter_vec}")
+f.write(f"\n{BO_acq_func =}")
 f.write(f"\nrandom_iter_vec = {random_iter_vec}")
 f.write(f"\ntrial_num = {trial_num}")
 f.write(f"\n{trial_base=}")
@@ -307,7 +309,8 @@ with open(BO_file, 'w') as f_BO, open(RS_file, 'w') as f_RS:
                 result = gp_minimize(
                     func=black_box_function,        # 最小化する関数
                     dimensions=bounds,              # 探索するパラメータの範囲
-                    acq_func="EI",
+                    acq_func= BO_acq_func,                  # 多分EIが誤差ない場合最適
+                    kappa=2.576, # LCBの場合の信頼度調整
                     n_calls=max_iter_vec[exp_i],    # 最適化の反復回数
                     n_initial_points=initial_design_numdata_vec[exp_i],  # 初期探索点の数
                     verbose=True,                   # 最適化の進行状況を表示
@@ -318,7 +321,8 @@ with open(BO_file, 'w') as f_BO, open(RS_file, 'w') as f_RS:
                 result = gp_minimize(
                     func=black_box_function,        # 最小化する関数
                     dimensions=bounds,              # 探索するパラメータの範囲
-                    acq_func="EI",
+                    acq_func= BO_acq_func,
+                    kappa=2.576, # LCBの場合の信頼度調整
                     n_calls=max_iter_vec[exp_i],    # 最適化の反復回数
                     n_initial_points=0,  # 初期探索点の数
                     verbose=True,                   # 最適化の進行状況を表示

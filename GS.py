@@ -28,7 +28,7 @@ BORSのシミュレーション
 #### User 設定変数 ##############
 
 input_var = "MOMY" # MOMY, RHOT, QVから選択
-input_size = -1 # 変更の余地あり
+input_size = -10 # 変更の余地あり
 Alg_vec = ["GS"]
 num_input_grid = 1 # ある一つの地点を制御
 Opt_purpose = "MinSum" #MinSum, MinMax, MaxSum, MaxMinから選択
@@ -39,6 +39,8 @@ colors6  = ['#4c72b0', '#f28e2b', '#55a868', '#c44e52'] # 論文用の色
 jst = pytz.timezone('Asia/Tokyo')# 日本時間のタイムゾーンを設定
 current_time = datetime.now(jst).strftime("%m-%d-%H-%M")
 
+Ygrid = 41 - num_input_grid
+Zgrid = 97
 """
 gp_minimize で獲得関数を指定: acq_func。
 gp_minimize の呼び出しにおける主要なオプションは次の通りです。
@@ -112,8 +114,8 @@ def update_netcdf(init: str, output: str, pe: int, input_values):
             if name == input_var:
                 var = src[name][:]
                 if pe == pe_this_y:  # y=Grid_yのときに変更処理
-                    var[Grid_y, 0, Grid_z] += input_size # (y,x,z)
-                    # var[Grid_y, 0, 0] += input_size # (y,x,z)
+                    for i in range(num_input_grid):
+                        var[Grid_y+ i, 0, Grid_z] += input_size # (y,x,z)
                 dst[name][:] = var
             else:
                 dst[name][:] = src[name][:]
@@ -169,7 +171,6 @@ def sim(control_input):
     return sum_prec
 
 
-
 def grid_search(objective_function):
     best_score = float('inf')
     best_params = None
@@ -178,8 +179,8 @@ def grid_search(objective_function):
     
     # 各組み合わせについて評価
     cnt = 0
-    for y_i in range(0, 40):
-        for z_i in range(0,97):
+    for y_i in range(0, Ygrid):
+        for z_i in range(0, Zgrid):
             score = objective_function([y_i, z_i])
             score = 100*score/96.50 # 大体で制御なし⇒100%
             results.append({'Y': y_i, 'Z': z_i, 'score': score})
@@ -198,7 +199,7 @@ def grid_search(objective_function):
 
 
 ###実行
-dirname = f"result/GS/{input_var}={input_size}_{current_time}"
+dirname = f"result/GS/{input_var}={input_size}_{num_input_grid}grid{current_time}"
 os.makedirs(dirname, exist_ok=True)
 output_file_path = os.path.join(dirname, f'summary.txt')
 f = open(output_file_path, 'w')

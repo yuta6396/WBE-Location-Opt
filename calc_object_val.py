@@ -1,3 +1,4 @@
+import numpy as np
 
 def calculate_objective_func_val(sum_co, Opt_purpose:str):
     """

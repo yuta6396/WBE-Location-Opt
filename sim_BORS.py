@@ -7,6 +7,9 @@ import subprocess
 from skopt import gp_minimize
 from skopt.space import Integer
 from skopt.plots import plot_convergence, plot_objective
+from skopt.utils import use_named_args
+
+import logging
 # 時刻を計測するライブラリ
 import time
 import pytz
@@ -17,6 +20,7 @@ from optimize import random_search
 from analysis import *
 from make_directory import make_directory
 from config import time_interval_sec, bound
+from calc_object_val import calculate_objective_func_val
 
 matplotlib.use('Agg')
 
@@ -26,8 +30,8 @@ BORSのシミュレーション
 
 #### User 設定変数 ##############
 
-input_var = "MOMY" # MOMY, RHOT, QVから選択
-input_size = 10 # 変更の余地あり
+input_var = "RHOT" # MOMY, RHOT, QVから選択
+input_size = 5 # 変更の余地あり
 Alg_vec = ["BO", "RS"]
 num_input_grid = 1 # ある一つの地点を制御
 Opt_purpose = "MinSum" #MinSum, MinMax, MaxSum, MaxMinから選択
@@ -35,12 +39,12 @@ Opt_purpose = "MinSum" #MinSum, MinMax, MaxSum, MaxMinから選択
 bounds = [Integer(low=0, high=39, prior='uniform', transform='normalize', name = "Y-grid"),  # Y次元目: 0以上40未満の整数 (0～39)
           Integer(low=0, high=96, prior='uniform', transform='normalize', name = "Z-grid")]  # Z次元目: 0以上97未満の整数 (0～96)
 
-BO_acq_func = "LCB" #gp_hedge, PI, EI, LCB
+BO_acq_func = "EI" #gp_hedge, PI, EI, LCB
 initial_design_numdata_vec = [10] #BOのRS回数
-max_iter_vec = [15, 15, 20, 50, 50, 50]            #{10, 20, 20, 50]=10, 30, 50, 100と同値
+max_iter_vec = [15, 15, 20, 50]            #{10, 20, 20, 50]=10, 30, 50, 100と同値
 random_iter_vec = max_iter_vec
 
-trial_num = 10  #箱ひげ図作成時の繰り返し回数
+trial_num = 1  #箱ひげ図作成時の繰り返し回数
 trial_base = 0
 
 dpi = 300 # 画像の解像度　スクリーンのみなら75以上　印刷用なら300以上
@@ -48,7 +52,7 @@ colors6  = ['#4c72b0', '#f28e2b', '#55a868', '#c44e52'] # 論文用の色
 ###############################
 jst = pytz.timezone('Asia/Tokyo')# 日本時間のタイムゾーンを設定
 current_time = datetime.now(jst).strftime("%m-%d-%H-%M")
-base_dir = f"result/BORS/{input_var}={input_size}_{trial_base}-{trial_base+trial_num -1}_{current_time}/"
+base_dir = f"test_result/BORS/{input_var}={input_size}_{trial_base}-{trial_base+trial_num -1}_{current_time}/"
 
 cnt_vec = np.zeros(len(max_iter_vec))
 for i in range(len(max_iter_vec)):
@@ -259,6 +263,22 @@ def BO_result_save(result, exp_i, trial_i):
     plt.close(fig)
     return
 
+logging.basicConfig(level=logging.INFO)
+
+class DuplicateCounterCallback:
+    def __init__(self):
+        self.evaluated_points = set()
+        self.duplicate_count = 0
+
+    def __call__(self, res):
+        current_point = tuple(res.x_iters[-1])
+        if current_point in self.evaluated_points:
+            self.duplicate_count += 1
+            print(f"Duplicate point detected: {current_point} | Total duplicates: {self.duplicate_count}")
+        else:
+            self.evaluated_points.add(current_point)
+
+
 ###実行
 make_directory(base_dir)
  
@@ -303,6 +323,7 @@ with open(BO_file, 'w') as f_BO, open(RS_file, 'w') as f_RS:
 
             ###BO
             random_reset(trial_i+trial_base)
+            duplicate_callback = DuplicateCounterCallback()
             start = time.time()  # 現在時刻（処理開始前）を取得
             # ベイズ最適化の実行
             if exp_i == 0:
@@ -310,26 +331,28 @@ with open(BO_file, 'w') as f_BO, open(RS_file, 'w') as f_RS:
                     func=black_box_function,        # 最小化する関数
                     dimensions=bounds,              # 探索するパラメータの範囲
                     acq_func= BO_acq_func,                  # 多分EIが誤差ない場合最適
-                    kappa=2.576, # LCBの場合の信頼度調整
+                    #kappa=2.576, # LCBの場合の信頼度調整
                     n_calls=max_iter_vec[exp_i],    # 最適化の反復回数
                     n_initial_points=initial_design_numdata_vec[exp_i],  # 初期探索点の数
                     verbose=True,                   # 最適化の進行状況を表示
                     initial_point_generator = "random",
-                    random_state = trial_i
+                    random_state = trial_i,
+                    callback=[duplicate_callback]
                 )
             else:
                 result = gp_minimize(
                     func=black_box_function,        # 最小化する関数
                     dimensions=bounds,              # 探索するパラメータの範囲
                     acq_func= BO_acq_func,
-                    kappa=2.576, # LCBの場合の信頼度調整
+                    #kappa=2.576, # LCBの場合の信頼度調整
                     n_calls=max_iter_vec[exp_i],    # 最適化の反復回数
                     n_initial_points=0,  # 初期探索点の数
                     verbose=True,                   # 最適化の進行状況を表示
                     initial_point_generator = "random",
                     random_state = trial_i,
                     x0=initial_x_iters,
-                    y0=initial_y_iters
+                    y0=initial_y_iters,
+                    callback=[duplicate_callback]
                 )           
             end = time.time()  # 現在時刻（処理完了後）を取得
             time_diff = end - start
@@ -344,6 +367,7 @@ with open(BO_file, 'w') as f_BO, open(RS_file, 'w') as f_RS:
             f_BO.write(f"\n入力値:{min_input}")
             f_BO.write(f"\n経過時間:{time_diff}sec")
             f_BO.write(f"\nnum_evaluation of BBF = {cnt_vec[exp_i]}")
+            f_BO.write(f"重複回数: {duplicate_callback.duplicate_count}")
             BO_result_save(result, exp_i, trial_i)
 
             sum_co, sum_no = sim(min_input)

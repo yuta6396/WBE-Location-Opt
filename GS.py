@@ -18,6 +18,7 @@ from optimize import random_search
 from analysis import *
 from make_directory import make_directory
 from config import time_interval_sec, bound
+from calc_object_val import calculate_objective_func_val
 
 matplotlib.use('Agg')
 
@@ -28,10 +29,10 @@ BORSのシミュレーション
 #### User 設定変数 ##############
 
 input_var = "MOMY" # MOMY, RHOT, QVから選択
-input_size = -10 # 変更の余地あり
+input_size = -1 # 変更の余地あり
 Alg_vec = ["GS"]
 num_input_grid = 1 # ある一つの地点を制御
-Opt_purpose = "MinSum" #MinSum, MinMax, MaxSum, MaxMinから選択
+Opt_purpose = "MinMax" #MinSum, MinMax, MaxSum, MaxMinから選択
 
 dpi = 75 # 画像の解像度　スクリーンのみなら75以上　印刷用なら300以上
 colors6  = ['#4c72b0', '#f28e2b', '#55a868', '#c44e52'] # 論文用の色
@@ -165,10 +166,8 @@ def sim(control_input):
                 sum_co[y_i] += dat[t_j,0,y_i,0]*time_interval_sec
                 sum_no[y_i] += odat[t_j,0,y_i,0]*time_interval_sec
 
-    sum_prec = 0
-    for y_i in range(40):
-        sum_prec += sum_co[y_i]
-    return sum_prec
+    objective_val = calculate_objective_func_val(sum_co, Opt_purpose)
+    return objective_val
 
 
 def grid_search(objective_function):
@@ -182,7 +181,11 @@ def grid_search(objective_function):
     for y_i in range(0, Ygrid):
         for z_i in range(0, Zgrid):
             score = objective_function([y_i, z_i])
-            score = 100*score/96.50 # 大体で制御なし⇒100%
+            if Opt_purpose == "MinSum":
+                score = 100*score/96.50 # 大体で制御なし⇒100%
+            elif Opt_purpose == "MinMax":
+                score = 100*score/6.2
+            print(score)
             results.append({'Y': y_i, 'Z': z_i, 'score': score})
 
             cnt += 1
@@ -199,7 +202,7 @@ def grid_search(objective_function):
 
 
 ###実行
-dirname = f"result/GS/{input_var}={input_size}_{num_input_grid}grid{current_time}"
+dirname = f"test_result/GS/{Opt_purpose}_{input_var}={input_size}_{num_input_grid}grid{current_time}"
 os.makedirs(dirname, exist_ok=True)
 output_file_path = os.path.join(dirname, f'summary.txt')
 f = open(output_file_path, 'w')

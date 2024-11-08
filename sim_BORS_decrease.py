@@ -38,18 +38,18 @@ bounds = [Integer(low=0, high=39, prior='uniform', transform='normalize', name =
           Integer(low=0, high=96, prior='uniform', transform='normalize', name = "Z-grid")]  # Z次元目: 0以上97未満の整数 (0～96)
 
 initial_design_numdata_vec = [10] #BOのRS回数
-max_iter_vec = [15, 15, 20, 50, 50, 50]            #{10, 20, 20, 50]=10, 30, 50, 100と同値
+max_iter_vec = [15, 15, 20, 50]            #{10, 20, 20, 50]=10, 30, 50, 100と同値
 random_iter_vec = max_iter_vec
 
-trial_num = 3  #箱ひげ図作成時の繰り返し回数
-trial_base = 1
+trial_num = 1  #箱ひげ図作成時の繰り返し回数
+trial_base = 0
 
 dpi = 300 # 画像の解像度　スクリーンのみなら75以上　印刷用なら300以上
 colors6  = ['#4c72b0', '#f28e2b', '#55a868', '#c44e52'] # 論文用の色
 ###############################
 jst = pytz.timezone('Asia/Tokyo')# 日本時間のタイムゾーンを設定
 current_time = datetime.now(jst).strftime("%m-%d-%H-%M")
-base_dir = f"result/BORS/{input_var}*={decrease_rate}_{trial_base}-{trial_base+trial_num -1}_{current_time}/"
+base_dir = f"test_result/BORS/{input_var}*={decrease_rate}_{trial_base}-{trial_base+trial_num -1}_{current_time}/"
 
 cnt_vec = np.zeros(len(max_iter_vec))
 for i in range(len(max_iter_vec)):

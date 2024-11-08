@@ -1,0 +1,19 @@
+
+BO_ratio_matrix = 
+[[99.4585458 ]
+ [99.18198608]]
+RS_ratio_matrix = 
+[[97.96774229]
+ [97.96774229]]
+Mean Accumulated PREC(%) 1 times; BBF=[3. 5.]
+BO_vec=array([99.4585458 , 99.18198608])
+RS_vec=array([97.96774229, 97.96774229])
+Median Accumulated PREC(%) 1 times; BBF=[3. 5.]
+BO_vec=array([99.4585458 , 99.18198608])
+RS_vec=array([97.96774229, 97.96774229])
+Min Accumulated PREC(%) 1 times; BBF=[3. 5.]
+BO_vec=array([99.4585458 , 99.18198608])
+RS_vec=array([97.96774229, 97.96774229])
+Max Accumulated PREC(%) 1 times; BBF=[3. 5.]
+BO_vec=array([99.4585458 , 99.18198608])
+RS_vec=array([97.96774229, 97.96774229])

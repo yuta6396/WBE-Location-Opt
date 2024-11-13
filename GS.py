@@ -28,7 +28,7 @@ BORSのシミュレーション
 
 #### User 設定変数 ##############
 
-input_var = "MOMY" # MOMY, RHOT, QVから選択
+input_var = "RHOT" # MOMY, RHOT, QVから選択
 input_size = -1 # 変更の余地あり
 Alg_vec = ["GS"]
 num_input_grid = 1 # ある一つの地点を制御

@@ -1,5 +1,0 @@
-
-cnt=1: params=[0, 0],  best_score=96.75901024094878
-cnt=2: params=[0, 1],  best_score=96.65176607112761
-cnt=4: params=[1, 1],  best_score=96.58560995552801
-Best parameters: [1, 1]

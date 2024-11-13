@@ -31,28 +31,28 @@ BORSのシミュレーション
 #### User 設定変数 ##############
 
 input_var = "RHOT" # MOMY, RHOT, QVから選択
-input_size = 5 # 変更の余地あり
+input_size = -1 # 変更の余地あり
 Alg_vec = ["BO", "RS"]
 num_input_grid = 1 # ある一つの地点を制御
-Opt_purpose = "MinSum" #MinSum, MinMax, MaxSum, MaxMinから選択
+Opt_purpose = "MinMax" #MinSum, MinMax, MaxSum, MaxMinから選択
 # bounds に整数の範囲を指定する highまで探索範囲であることに注意
 bounds = [Integer(low=0, high=39, prior='uniform', transform='normalize', name = "Y-grid"),  # Y次元目: 0以上40未満の整数 (0～39)
           Integer(low=0, high=96, prior='uniform', transform='normalize', name = "Z-grid")]  # Z次元目: 0以上97未満の整数 (0～96)
 
 BO_acq_func = "EI" #gp_hedge, PI, EI, LCB
 initial_design_numdata_vec = [10] #BOのRS回数
-max_iter_vec = [15, 15, 20, 50]            #{10, 20, 20, 50]=10, 30, 50, 100と同値
+max_iter_vec = [15, 15, 20, 50, 50, 50]            #{10, 20, 20, 50]=10, 30, 50, 100と同値
 random_iter_vec = max_iter_vec
 
-trial_num = 1  #箱ひげ図作成時の繰り返し回数
-trial_base = 0
+trial_num = 10  #箱ひげ図作成時の繰り返し回数
+trial_base = 10
 
 dpi = 300 # 画像の解像度　スクリーンのみなら75以上　印刷用なら300以上
 colors6  = ['#4c72b0', '#f28e2b', '#55a868', '#c44e52'] # 論文用の色
 ###############################
 jst = pytz.timezone('Asia/Tokyo')# 日本時間のタイムゾーンを設定
 current_time = datetime.now(jst).strftime("%m-%d-%H-%M")
-base_dir = f"test_result/BORS/{input_var}={input_size}_{trial_base}-{trial_base+trial_num -1}_{current_time}/"
+base_dir = f"result/BORS/{Opt_purpose}_{input_var}={input_size}_{trial_base}-{trial_base+trial_num -1}_{current_time}/"
 
 cnt_vec = np.zeros(len(max_iter_vec))
 for i in range(len(max_iter_vec)):
@@ -372,7 +372,7 @@ with open(BO_file, 'w') as f_BO, open(RS_file, 'w') as f_RS:
 
             sum_co, sum_no = sim(min_input)
             SUM_no = sum_no
-            BO_ratio_matrix[exp_i, trial_i] = calculate_PREC_rate(sum_co, sum_no)
+            BO_ratio_matrix[exp_i, trial_i] = calculate_objective_func_val(sum_co, Opt_purpose)
             print(BO_ratio_matrix[exp_i, trial_i])
             BO_time_matrix[exp_i, trial_i] = time_diff
 
@@ -396,7 +396,7 @@ with open(BO_file, 'w') as f_BO, open(RS_file, 'w') as f_RS:
             f_RS.write(f"\nnum_evaluation of BBF = {cnt_vec[exp_i]}")
             sum_co, sum_no = sim(best_params)
             sum_RS_MOMY = sum_co
-            RS_ratio_matrix[exp_i, trial_i] =  calculate_PREC_rate(sum_co, sum_no)
+            RS_ratio_matrix[exp_i, trial_i] =  calculate_objective_func_val(sum_co, Opt_purpose)
             RS_time_matrix[exp_i, trial_i] = time_diff
 
 #シミュレーション結果の可視化

@@ -52,7 +52,7 @@ colors6  = ['#4c72b0', '#f28e2b', '#55a868', '#c44e52'] # 論文用の色
 ###############################
 jst = pytz.timezone('Asia/Tokyo')# 日本時間のタイムゾーンを設定
 current_time = datetime.now(jst).strftime("%m-%d-%H-%M")
-base_dir = f"result/BORS/{Opt_purpose}_{input_var}={input_size}_{trial_base}-{trial_base+trial_num -1}_{current_time}/"
+base_dir = f"test_result/BORS/{Opt_purpose}_{input_var}={input_size}_{trial_base}-{trial_base+trial_num -1}_{current_time}/"
 
 cnt_vec = np.zeros(len(max_iter_vec))
 for i in range(len(max_iter_vec)):
@@ -189,7 +189,7 @@ def sim(control_input):
     # 各時刻までの平均累積降水量をplot 
     # print(nc[varname].shape)
     # print(nc['V'].shape)
-    # figure_time_lapse(control_input, base_dir, odat, dat, nt, varname)
+    #figure_time_lapse(control_input, base_dir, odat, dat, nt, varname)
     # figure_time_lapse(control_input, base_dir, MOMY_no_dat, MOMY_dat, nt, input_var)
     # figure_time_lapse(control_input, base_dir, QHYD_no_dat, QHYD_dat, nt, "QHYD")
     # merged_history の作成

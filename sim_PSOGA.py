@@ -4,13 +4,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 import subprocess
+from skopt.space import Integer
 # 時刻を計測するライブラリ
 import time
 import pytz
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from config import bound, time_interval_sec, w_max, w_min, gene_length, crossover_rate, mutation_rate, lower_bound, upper_bound, alpha, tournament_size
+from config import  time_interval_sec, w_max, w_min, gene_length, crossover_rate, mutation_rate,  alpha, tournament_size
 from optimize import *
 from analysis import *
 from make_directory import make_directory
@@ -26,13 +27,16 @@ PSOGAのシミュレーション
 #### User 設定変数 ##############
 
 input_var = "RHOT" # MOMY, RHOT, QVから選択
-input_size = 1 # 変更の余地あり
+input_size = 10 # 変更の余地あり
 Alg_vec = ["PSO", "GA"]
 num_input_grid = 3 #y=20~20+num_input_grid-1まで制御
 Opt_purpose = "MinSum" #MinSum, MinMax, MaxSum, MaxMinから選択
 
-particles_vec = [5, 10, 10, 10, 10, 10]           # 粒子数
-iterations_vec = [2, 3, 5, 10, 15, 20]        # 繰り返し回数
+bounds = [Integer(low=0, high=39, prior='uniform', transform='normalize', name = "Y-grid"),  # Y次元目: 0以上40未満の整数 (0～39)
+          Integer(low=0, high=96, prior='uniform', transform='normalize', name = "Z-grid")]
+
+particles_vec = [2]           # 粒子数
+iterations_vec = [2]        # 繰り返し回数
 pop_size_vec = particles_vec  # Population size
 num_generations_vec = iterations_vec  # Number of generations
 
@@ -40,7 +44,7 @@ num_generations_vec = iterations_vec  # Number of generations
 c1 = 2.0
 c2 = 2.0
 
-trial_num = 10  # 乱数種の数
+trial_num = 1  # 乱数種の数
 trial_base = 0
 
 dpi = 75 # 画像の解像度　スクリーンのみなら75以上　印刷用なら300以上
@@ -48,7 +52,7 @@ colors6  = ['#4c72b0', '#f28e2b', '#55a868', '#c44e52'] # 論文用の色
 ###############################
 jst = pytz.timezone('Asia/Tokyo')# 日本時間のタイムゾーンを設定
 current_time = datetime.now(jst).strftime("%m-%d-%H-%M")
-base_dir = f"result/PSOGA/{input_var}={input_size}_{trial_base}-{trial_base+trial_num -1}_{current_time}/"
+base_dir = f"test_result/PSOGA/{Opt_purpose}_{input_var}={input_size}_{trial_base}-{trial_base+trial_num -1}_{current_time}/"
 cnt_vec = np.zeros(len(particles_vec))
 for i in range(len(particles_vec)):
      cnt_vec[i] = int(particles_vec[i])*int(iterations_vec[i])
@@ -71,6 +75,7 @@ file_path = os.path.dirname(os.path.abspath(__file__))
 gpyoptfile=f"gpyopt.pe######.nc"
 
 
+### SCALE-RM関連関数
 def prepare_files(pe: int):
     """ファイルの準備と初期化を行う"""
     output_file = f"out-{input_var}.pe######.nc"
@@ -110,8 +115,9 @@ def update_netcdf(init: str, output: str, pe: int, input_values):
             dst[name].setncatts(src[name].__dict__)
             if name == input_var:
                 var = src[name][:]
-                if pe == pe_this_y:
-                    var[Grid_y, 0,Grid_z] += input_size # (y, x, z)
+                if pe == pe_this_y:  # y=Grid_yのときに変更処理
+                    var[Grid_y, 0, Grid_z] += input_size # (y,x,z)
+                    # var[Grid_y, 0, Grid_z] *= (1-intervation_size) (0~1)
                 dst[name][:] = var
             else:
                 dst[name][:] = src[name][:]
@@ -124,6 +130,7 @@ def sim(control_input):
     """
     制御入力決定後に実際にその入力値でシミュレーションする
     """
+    #control_input = [18, 7] # 
     for pe in range(nofpe):
         init, output = prepare_files(pe)
         init = update_netcdf(init, output, pe, control_input)
@@ -149,18 +156,29 @@ def sim(control_input):
         if pe == 0:
             dat = np.zeros((nt, nz, fny*ny, fnx*nx))
             odat = np.zeros((nt, nz, fny*ny, fnx*nx))
-            control_dat = np.zeros((nt, nz, fny*ny, fnx*nx))
-            no_control_odat = np.zeros((nt, nz, fny*ny, fnx*nx)) 
-
+            # MOMY_dat = np.zeros((nt, nz, fny*ny, fnx*nx))
+            # MOMY_no_dat = np.zeros((nt, nz, fny*ny, fnx*nx)) 
+            # QHYD_dat = np.zeros((nt, nz, fny*ny, fnx*nx))
+            # QHYD_no_dat = np.zeros((nt, nz, fny*ny, fnx*nx)) 
+        # print(nc.variables.keys()) 
         dat[:, 0, gy1:gy2, gx1:gx2] = nc[varname][:]
         odat[:, 0, gy1:gy2, gx1:gx2] = onc[varname][:]
         # MOMYの時.ncには'V'で格納される
-    #     control_dat[:, :, gy1:gy2, gx1:gx2] = nc['V'][:]
-    #     no_control_odat[:, :, gy1:gy2, gx1:gx2] = onc['V'][:]
-    # # 各時刻までの平均累積降水量をplot 
-    # figure_time_lapse(control_input, base_dir, odat, dat, nt, varname)
-    # figure_time_lapse(control_input, base_dir, no_control_odat, control_dat, nt, input_var)
-        
+        # MOMY_dat[:, :, gy1:gy2, gx1:gx2] = nc['V'][:]
+        # MOMY_no_dat[:, :, gy1:gy2, gx1:gx2] = onc['V'][:]
+
+        # QHYD_dat[:, :, gy1:gy2, gx1:gx2] = nc['QHYD'][:]
+        # QHYD_no_dat[:, :, gy1:gy2, gx1:gx2] = onc['QHYD'][:]
+    # 各時刻までの平均累積降水量をplot 
+    # print(nc[varname].shape)
+    # print(nc['V'].shape)
+    #figure_time_lapse(control_input, base_dir, odat, dat, nt, varname)
+    # figure_time_lapse(control_input, base_dir, MOMY_no_dat, MOMY_dat, nt, input_var)
+    # figure_time_lapse(control_input, base_dir, QHYD_no_dat, QHYD_dat, nt, "QHYD")
+    # merged_history の作成
+    # subprocess.run(["mpirun", "-n", "2", "./sno", "sno_R20kmDX500m.conf"])
+    # anim_exp(base_dir, control_input)
+
     sum_co=np.zeros(40) #制御後の累積降水量
     sum_no=np.zeros(40) #制御前の累積降水量
     for y_i in range(40):
@@ -168,6 +186,7 @@ def sim(control_input):
             if t_j > 0:
                 sum_co[y_i] += dat[t_j,0,y_i,0]*time_interval_sec
                 sum_no[y_i] += odat[t_j,0,y_i,0]*time_interval_sec
+    #print(sum_co-sum_no)
     return sum_co, sum_no
 
 def black_box_function(control_input):
@@ -208,7 +227,6 @@ def black_box_function(control_input):
 
     return objective_val
 
-
 ###実行
 make_directory(base_dir)
 
@@ -235,8 +253,6 @@ f.write(f"c2={c2}\n")
 f.write(f"gene_length={gene_length}\n")
 f.write(f"crossover_rate={crossover_rate}\n")
 f.write(f"mutation_rate={mutation_rate}\n")
-f.write(f"lower_bound={lower_bound}\n")
-f.write(f"upper_bound={upper_bound}\n")
 f.write(f"alpha={alpha}\n")
 f.write(f"tournament_size={tournament_size}\n")
 f.write(f"{dpi=}")
@@ -254,10 +270,8 @@ GA_file = os.path.join(base_dir, "summary", f"{Alg_vec[1]}.txt")
 
 with open(PSO_file, 'w') as f_PSO, open(GA_file, 'w') as f_GA:
     for trial_i in range(trial_num):
-        f_progress.write(f"\n\n{trial_i=}\n")
         cnt_base = 0
         for exp_i in range(exp_size):
-            f_progress.write(f"{exp_i=},  ")
             if exp_i > 0:
                 cnt_base  = cnt_vec[exp_i - 1]
 
@@ -265,10 +279,9 @@ with open(PSO_file, 'w') as f_PSO, open(GA_file, 'w') as f_GA:
             ###PSO
             random_reset(trial_i)
             # 入力次元と最小値・最大値の定義
-            bounds_MOMY = [(-max_input, max_input)]*num_input_grid  # 探索範囲
 
             start = time.time()  # 現在時刻（処理開始前）を取得
-            best_position, result_value  = PSO(black_box_function, bounds_MOMY, particles_vec[exp_i], iterations_vec[exp_i], f_PSO)
+            best_position, result_value  = PSO(black_box_function, bounds, particles_vec[exp_i], iterations_vec[exp_i], f_PSO)
             end = time.time()  # 現在時刻（処理完了後）を取得
             time_diff = end - start
             f_PSO.write(f"\n最小値:{result_value[iterations_vec[exp_i]-1]}")

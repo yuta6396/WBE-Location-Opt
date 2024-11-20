@@ -1,12 +1,12 @@
 import numpy as np
 import random
 
-from config import w_max, w_min, gene_length, crossover_rate, mutation_rate, lower_bound, upper_bound, alpha, tournament_size
+from config import w_max, w_min, gene_length, crossover_rate, mutation_rate, alpha, tournament_size
 
 
 
 #### ブラックボックス最適化手法 ####
-###ランダムサーチ アルゴリズム
+###ランダムサーチ アルゴリズム  介入位置最適化問題
 def random_search(objective_function, bounds, n_iterations, f_RS, num_input_grid, previous_best=None):
     # 以前の最良のスコアとパラメータを初期化
     input_history=[]
@@ -53,7 +53,8 @@ def random_search_YZI(objective_function, bounds, bounds_input, n_iterations, f_
 def initialize_particles(num_particles, bounds):
     particles = []
     for _ in range(num_particles):
-        position = np.array([np.random.uniform(bound[0], bound[1]) for bound in bounds])
+        # position = np.array([np.random.randint(bound, bound[1]) for bound in bounds])
+        position = [np.random.randint(bound.low, bound.high + 1) for bound in bounds]
         velocity = np.array([np.random.uniform(-1, 1) for _ in bounds])
         particles.append({
             'position': position,
@@ -75,18 +76,24 @@ def update_velocity(particle, global_best_position, w, c1, c2):
 # 位置の更新
 def update_position(particle, bounds):
     particle['position'] += particle['velocity']
-    for i in range(len(particle['position'])):
-        if particle['position'][i] < bounds[i][0]:
-            particle['position'][i] = bounds[i][0]
-        if particle['position'][i] > bounds[i][1]:
-            particle['position'][i] = bounds[i][1]
+    # for i in range(len(particle['position'])):
+    #     if particle['position'][i] < bounds[i][0]:
+    #         particle['position'][i] = bounds[i][0]
+    #     if particle['position'][i] > bounds[i][1]:
+    #         particle['position'][i] = bounds[i][1]
+    print(particle['position'])
+    for i, bound in enumerate(bounds):
+        if particle['position'][i] < bound.low:
+            particle['position'][i] = bound.low
+        if particle['position'][i] > bound.high:
+            particle['position'][i] = bound.high
 
 # PSOアルゴリズムの実装
 def PSO(objective_function, bounds, num_particles, num_iterations, f_PSO):
     particles = initialize_particles(num_particles, bounds)
     global_best_value = float('inf')
-    global_best_position = np.array([np.random.uniform(bound[0], bound[1]) for bound in bounds])
-
+    #global_best_position = np.array([np.random.uniform(bound[0], bound[1]) for bound in bounds])
+    global_best_position = [np.random.randint(bound.low, bound.high + 1) for bound in bounds]
     w = w_max      # 慣性係数
     c1 = 2.0      # 認知係数
     c2 = 2.0      # 社会係数
@@ -99,18 +106,19 @@ def PSO(objective_function, bounds, num_particles, num_iterations, f_PSO):
         f_PSO.write(f'w={w}')
         print(f'w={w}')
         for particle in particles:
-            particle['value'] = objective_function(particle['position'])
+            rounded_particle_position = np.round(particle['position'])
+            particle['value'] = objective_function(rounded_particle_position)
             print(particle['value'])
             if particle['value'] < particle['best_value']:
-                particle['best_value'] = particle['value']
-                particle['best_position'] = particle['position'].copy()
+                particle['best_value'] = rounded_particle_position
+                particle['best_position'] = rounded_particle_position.copy()
 
             if particle['value'] < global_best_value:
                 global_best_value = particle['value']
-                global_best_position = particle['position'].copy()
+                global_best_position = rounded_particle_position.copy()
 
             if flag_s == 0 :
-                iteration_positions = particle['position'].copy()
+                iteration_positions = particle['position'].copy()  ##ここだけ動きを見たいからあえてこうしている
                 flag_s = 1
             else:
                 iteration_positions = np.vstack((iteration_positions, particle['position'].copy()))

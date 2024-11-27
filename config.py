@@ -5,7 +5,7 @@ w_min = 0.4
 
 # GA Parameters
 
-gene_length = 3  # Number of genes per individual 制御入力grid数
+gene_length = 2  # Number of genes per individual 探索空間の次元
 crossover_rate = 0.8  # Crossover rate
 mutation_rate = 0.05  # Mutation rate
 alpha = 0.5  # BLX-alpha parameter

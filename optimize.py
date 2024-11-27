@@ -69,8 +69,10 @@ def initialize_particles(num_particles, bounds):
 def update_velocity(particle, global_best_position, w, c1, c2):
     r1 = np.random.random(len(particle['position']))
     r2 = np.random.random(len(particle['position']))
-    cognitive = c1 * r1 * (particle['best_position'] - particle['position'])
-    social = c2 * r2 * (global_best_position - particle['position'])
+    best_position = np.array(particle['best_position'])
+    position = np.array(particle['position'])
+    cognitive = c1 * r1 * (best_position - position)
+    social = c2 * r2 * (global_best_position - position)
     particle['velocity'] = w * particle['velocity'] + cognitive + social
 
 # 位置の更新
@@ -106,16 +108,18 @@ def PSO(objective_function, bounds, num_particles, num_iterations, f_PSO):
         f_PSO.write(f'w={w}')
         print(f'w={w}')
         for particle in particles:
-            rounded_particle_position = np.round(particle['position'])
-            particle['value'] = objective_function(rounded_particle_position)
-            print(particle['value'])
+            # print("AA")
+            print(particle['position'])
+            # print("AA")
+            #rounded_particle_position = np.round(particle['position'])
+            particle['value'] = objective_function(np.rint(particle['position']).astype(int))
             if particle['value'] < particle['best_value']:
-                particle['best_value'] = rounded_particle_position
-                particle['best_position'] = rounded_particle_position.copy()
+                particle['best_value'] = particle['value']
+                particle['best_position'] = particle['position'].copy()
 
             if particle['value'] < global_best_value:
                 global_best_value = particle['value']
-                global_best_position = rounded_particle_position.copy()
+                global_best_position = particle['position'].copy()
 
             if flag_s == 0 :
                 iteration_positions = particle['position'].copy()  ##ここだけ動きを見たいからあえてこうしている
@@ -141,9 +145,14 @@ def PSO(objective_function, bounds, num_particles, num_iterations, f_PSO):
 
 
 ###遺伝的アルゴリズム
-def initialize_population(pop_size, gene_length, lower_bound, upper_bound):
-    return np.random.uniform(lower_bound, upper_bound, (pop_size, gene_length))
-
+# def initialize_population(pop_size, gene_length, bounds):
+#     return np.random.uniform(lower_bound, upper_bound, (pop_size, gene_length))
+def initialize_population(pop_size, gene_length, bounds):
+    for 
+    random_samples2 = np.random.randint(0, 39, (pop_size, 1))
+    random_samples3 = np.random.randint(0, 96, (pop_size, 1))
+    combined_samples = np.concatenate((random_samples2,random_samples3), axis=1)
+    return combined_samples
 
 def calculate_fitness(population, fitness_function):
     # Apply the fitness function to each individual in the population
@@ -182,11 +191,11 @@ def blx_alpha_crossover(parents, offspring_size, alpha):
     return offspring
 
 
-def mutate(offspring, mutation_rate, lower_bound, upper_bound):
+def mutate(offspring, mutation_rate, bounds):
     for idx in range(offspring.shape[0]):
         for gene_idx in range(offspring.shape[1]):
             if np.random.rand() < mutation_rate:
-                offspring[idx, gene_idx] = np.random.uniform(lower_bound, upper_bound)
+                offspring[idx, gene_idx] = np.random.randint(bound.low, bound.high + 1)
         # Clamp values to be within the bounds using np.clip
         offspring[idx] = np.clip(offspring[idx], lower_bound, upper_bound)
     return offspring
@@ -194,11 +203,11 @@ def mutate(offspring, mutation_rate, lower_bound, upper_bound):
 
 
 def genetic_algorithm(objective_function, pop_size, gene_length, num_generations, crossover_rate,
-                      mutation_rate, lower_bound, upper_bound, alpha, tournament_size, f_GA):
+                      mutation_rate, bounds, alpha, tournament_size, f_GA):
     best_fitness = float("inf")
     best_individual = None
 
-    population = initialize_population(pop_size, gene_length, lower_bound, upper_bound)
+    population = initialize_population(pop_size, gene_length, bounds)
     
     gene_history=population.copy() # 粒子の現在位置を記録     粒子数*num_grid
 
@@ -221,7 +230,7 @@ def genetic_algorithm(objective_function, pop_size, gene_length, num_generations
         offspring_size = (int(pop_size * crossover_rate), gene_length)
         offspring = blx_alpha_crossover(parents, offspring_size, alpha)
 
-        offspring = mutate(offspring, mutation_rate, lower_bound, upper_bound)
+        offspring = mutate(offspring, mutation_rate, bounds)
         
         population[0:offspring.shape[0]] = offspring
         if generation < num_generations - 1:

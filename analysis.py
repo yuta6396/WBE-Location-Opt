@@ -83,7 +83,7 @@ def figure_BarPlot(exp_i:int, target_data:str, data, colors, base_dir, dpi, Alg_
     plt.close()
     return
 
-def figire_LineGraph(BO_vec, RS_vec, central_value, base_dir, dpi, Alg_vec, color, cnt_vec, trial_num):
+def figire_LineGraph(BO_vec, RS_vec, central_value, base_dir, dpi, Alg_vec, color, cnt_vec, trial_num, Opt_score=None):
     """
     折れ線グラフを描画し保存する
     """
@@ -92,6 +92,9 @@ def figire_LineGraph(BO_vec, RS_vec, central_value, base_dir, dpi, Alg_vec, colo
     plt.figure(figsize=(8, 6))
     plt.plot(cnt_vec, BO_vec, marker='o', label=Alg_vec[0], color=color[0], lw=lw, ms=ms)
     plt.plot(cnt_vec, RS_vec, marker='D', label=Alg_vec[1], color=color[3], lw=lw, ms=ms)
+ 
+    if Opt_score is not None:
+        plt.axhline(y=Opt_score, color='red', linestyle='--', label='Optimal value')
         # グラフのタイトルとラベルの設定
     plt.title(f'{central_value} value of {trial_num} times', fontsize=20)
     plt.xlabel('Function evaluation times', fontsize=20)
@@ -110,13 +113,13 @@ def write_summary(BO_vec, RS_vec, central_value:str, f, trial_num, cnt_vec):
     f.write(f"\n{RS_vec=}")
     return 
 
-def central_summary(BO_vec, RS_vec, central_value:str, f, base_dir, dpi, Alg_vec, color, trial_num:int, cnt_vec):
-    figire_LineGraph(BO_vec, RS_vec, central_value, base_dir, dpi, Alg_vec, color, cnt_vec, trial_num)
+def central_summary(BO_vec, RS_vec, central_value:str, f, base_dir, dpi, Alg_vec, color, trial_num:int, cnt_vec, Opt_score=None):
+    figire_LineGraph(BO_vec, RS_vec, central_value, base_dir, dpi, Alg_vec, color, cnt_vec, trial_num, Opt_score)
     write_summary(BO_vec, RS_vec, central_value, f, trial_num, cnt_vec)
     return 
 
 def vizualize_simulation(BO_ratio_matrix, RS_ratio_matrix, BO_time_matrix, RS_time_matrix, max_iter_vec,
-         f,  base_dir, dpi, Alg_vec, color, trial_num:int, cnt_vec):
+         f,  base_dir, dpi, Alg_vec, color, trial_num:int, cnt_vec, Opt_score=None):
     #累積降水量の箱ひげ図比較
     f.write(f"\nBO_ratio_matrix = \n{BO_ratio_matrix}")
     f.write(f"\nRS_ratio_matrix = \n{RS_ratio_matrix}")
@@ -142,7 +145,7 @@ def vizualize_simulation(BO_ratio_matrix, RS_ratio_matrix, BO_time_matrix, RS_ti
         BO_vec[exp_i] = np.mean(BO_ratio_matrix[exp_i, :])
         RS_vec[exp_i] = np.mean(RS_ratio_matrix[exp_i, :])
 
-    central_summary(BO_vec, RS_vec, "Mean", f, base_dir, dpi, Alg_vec, color, trial_num, cnt_vec)
+    central_summary(BO_vec, RS_vec, "Mean", f, base_dir, dpi, Alg_vec, color, trial_num, cnt_vec, Opt_score)
 
     #各手法の中央値比較
 
@@ -150,7 +153,7 @@ def vizualize_simulation(BO_ratio_matrix, RS_ratio_matrix, BO_time_matrix, RS_ti
         BO_vec[exp_i] = np.median(BO_ratio_matrix[exp_i, :])
         RS_vec[exp_i] = np.median(RS_ratio_matrix[exp_i, :])
 
-    central_summary(BO_vec, RS_vec, "Median", f, base_dir, dpi, Alg_vec, color, trial_num, cnt_vec)
+    central_summary(BO_vec, RS_vec, "Median", f, base_dir, dpi, Alg_vec, color, trial_num, cnt_vec, Opt_score)
 
     #各手法の最小値(good)比較
     for trial_i in range(trial_num):
@@ -164,7 +167,7 @@ def vizualize_simulation(BO_ratio_matrix, RS_ratio_matrix, BO_time_matrix, RS_ti
             if RS_ratio_matrix[exp_i, trial_i] < RS_vec[exp_i]:
                 RS_vec[exp_i] = RS_ratio_matrix[exp_i, trial_i]
 
-    central_summary(BO_vec, RS_vec, "Min", f, base_dir, dpi, Alg_vec, color, trial_num, cnt_vec)
+    central_summary(BO_vec, RS_vec, "Min", f, base_dir, dpi, Alg_vec, color, trial_num, cnt_vec, Opt_score)
 
     #各手法の最大値(bad)比較
     for trial_i in range(trial_num):
@@ -178,7 +181,7 @@ def vizualize_simulation(BO_ratio_matrix, RS_ratio_matrix, BO_time_matrix, RS_ti
             if RS_ratio_matrix[exp_i, trial_i] > RS_vec[exp_i]:
                 RS_vec[exp_i] = RS_ratio_matrix[exp_i, trial_i]
 
-    central_summary(BO_vec, RS_vec, "Max", f, base_dir, dpi, Alg_vec, color, trial_num, cnt_vec)
+    central_summary(BO_vec, RS_vec, "Max", f, base_dir, dpi, Alg_vec, color, trial_num, cnt_vec, Opt_score)
     return
 
 
@@ -207,25 +210,26 @@ def figure_time_lapse(control_input, base_dir, odat, dat, nt, anim_varname):
 
     # 動画
     ims = []
-    fig, ax = plt.subplots(figsize = (6, 6))
+    fig, ax = plt.subplots(figsize = (6, 5))
     # タイトルのポジション
-    x = 15
-    y = 97
+    x = 13
+    y = 72
     interval = 500 # gifの時間間隔
 
     if anim_varname == "PREC":
-        for t in range(nt) :
-            im_noC = ax.plot(odat[t,0,:,0], color=c1, label=l1)
-            im_C = ax.plot(dat[t,0,:,0],color=c2, label=l2)
+        for t in range(1, nt) :
+            im_noC = ax.plot(odat[t,0,:,0]*3600, color='#4c72b0', marker='o')
+            #im_C = ax.plot(dat[t,0,:,0],color=c2, label=l2)
             
-            ax.set_ylim(0,0.025)
+            ax.set_ylim(0,70)
             ax.set_xlim(0,40)
-            ax.set_xlabel('Y')
-            ax.set_ylabel(anim_varname)
-            title = ax.text(x, y, f"Time: {t*5} min", fontsize=15)
-            if t == 0 :
-                ax.legend()
-            ims.append(im_noC + im_C + [title])
+            ax.tick_params(axis='x', labelsize=15)
+            ax.tick_params(axis='y', labelsize=15)
+            #ax.set_xlabel('Y')
+            #ax.set_ylabel(anim_varname)
+            title = ax.text(x, y, f"Time: {(t-1)*5} min", fontsize=20)
+
+            ims.append(im_noC  + [title])
 
     else:
         if anim_varname == "MOMY":

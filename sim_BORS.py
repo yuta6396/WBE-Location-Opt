@@ -19,7 +19,7 @@ from zoneinfo import ZoneInfo
 from optimize import random_search
 from analysis import *
 from make_directory import make_directory
-from config import time_interval_sec, bound
+from config import time_interval_sec
 from calc_object_val import calculate_objective_func_val
 
 matplotlib.use('Agg')
@@ -31,21 +31,22 @@ BORSのシミュレーション
 #### User 設定変数 ##############
 
 input_var = "RHOT" # MOMY, RHOT, QVから選択
-input_size = -1 # 変更の余地あり
+input_size = 1 # 変更の余地あり
 Alg_vec = ["BO", "RS"]
 num_input_grid = 1 # ある一つの地点を制御
 Opt_purpose = "MinMax" #MinSum, MinMax, MaxSum, MaxMinから選択
+Opt_score = 90.17641435518946 #None or 最適値
 # bounds に整数の範囲を指定する highまで探索範囲であることに注意
 bounds = [Integer(low=0, high=39, prior='uniform', transform='normalize', name = "Y-grid"),  # Y次元目: 0以上40未満の整数 (0～39)
           Integer(low=0, high=96, prior='uniform', transform='normalize', name = "Z-grid")]  # Z次元目: 0以上97未満の整数 (0～96)
 
 BO_acq_func = "EI" #gp_hedge, PI, EI, LCB
 initial_design_numdata_vec = [10] #BOのRS回数
-max_iter_vec = [15, 15, 20, 50, 50, 50]            #{10, 20, 20, 50]=10, 30, 50, 100と同値
+max_iter_vec = [15, 15, 20, 50, 50, 50, 50, 50, 50, 50]            #{10, 20, 20, 50]=10, 30, 50, 100と同値
 random_iter_vec = max_iter_vec
 
 trial_num = 10  #箱ひげ図作成時の繰り返し回数
-trial_base = 10
+trial_base = 0
 
 dpi = 300 # 画像の解像度　スクリーンのみなら75以上　印刷用なら300以上
 colors6  = ['#4c72b0', '#f28e2b', '#55a868', '#c44e52'] # 論文用の色
@@ -189,7 +190,7 @@ def sim(control_input):
     # 各時刻までの平均累積降水量をplot 
     # print(nc[varname].shape)
     # print(nc['V'].shape)
-    #figure_time_lapse(control_input, base_dir, odat, dat, nt, varname)
+    figure_time_lapse(control_input, base_dir, odat, dat, nt, varname)
     # figure_time_lapse(control_input, base_dir, MOMY_no_dat, MOMY_dat, nt, input_var)
     # figure_time_lapse(control_input, base_dir, QHYD_no_dat, QHYD_dat, nt, "QHYD")
     # merged_history の作成
@@ -405,5 +406,5 @@ config_file_path = os.path.join(base_dir, "summary", filename)
 f = open(config_file_path, 'w')
 
 vizualize_simulation(BO_ratio_matrix, RS_ratio_matrix, BO_time_matrix, RS_time_matrix, max_iter_vec,
-         f, base_dir, dpi, Alg_vec, colors6, trial_num, cnt_vec)
+         f, base_dir, dpi, Alg_vec, colors6, trial_num, cnt_vec, Opt_score)
 f.close()

@@ -1,5 +1,7 @@
 import numpy as np
 import random
+from deap import base, creator, tools, algorithms
+from sklearn.utils import check_random_state
 
 from config import w_max, w_min, gene_length, crossover_rate, mutation_rate, alpha, tournament_size
 
@@ -119,7 +121,7 @@ def PSO(objective_function, bounds, num_particles, num_iterations, f_PSO):
 
             if particle['value'] < global_best_value:
                 global_best_value = particle['value']
-                global_best_position = particle['position'].copy()
+                global_best_position = np.rint(particle['position']).astype(int)
 
             if flag_s == 0 :
                 iteration_positions = particle['position'].copy()  ##ここだけ動きを見たいからあえてこうしている
@@ -147,94 +149,156 @@ def PSO(objective_function, bounds, num_particles, num_iterations, f_PSO):
 ###遺伝的アルゴリズム
 # def initialize_population(pop_size, gene_length, bounds):
 #     return np.random.uniform(lower_bound, upper_bound, (pop_size, gene_length))
-def initialize_population(pop_size, gene_length, bounds):
-    for 
-    random_samples2 = np.random.randint(0, 39, (pop_size, 1))
-    random_samples3 = np.random.randint(0, 96, (pop_size, 1))
-    combined_samples = np.concatenate((random_samples2,random_samples3), axis=1)
-    return combined_samples
+# def initialize_population(pop_size, gene_length, bounds):
+#     random_samples2 = np.random.randint(0, 39, (pop_size, 1))
+#     random_samples3 = np.random.randint(0, 96, (pop_size, 1))
+#     combined_samples = np.concatenate((random_samples2,random_samples3), axis=1)
+#     return combined_samples
 
-def calculate_fitness(population, fitness_function):
-    # Apply the fitness function to each individual in the population
-    return np.apply_along_axis(fitness_function, 1, population)
-
-
-def tournament_selection(population, fitness, tournament_size):
-    selected_parents = []
-    for _ in range(len(population)):
-        participants_idx = np.random.choice(np.arange(len(population)), tournament_size, replace=False)
-        best_idx = participants_idx[np.argmin(fitness[participants_idx])]
-        selected_parents.append(population[best_idx])
-    return np.array(selected_parents)
+# def calculate_fitness(population, fitness_function):
+#     # Apply the fitness function to each individual in the population
+#     return np.apply_along_axis(fitness_function, 1, population)
 
 
-def blx_alpha_crossover(parents, offspring_size, alpha):
-    offspring = np.empty(offspring_size)
-    for i in range(0, offspring_size[0], 2):
-        parent1_idx = i % parents.shape[0]
-        parent2_idx = (i + 1) % parents.shape[0]
+# def tournament_selection(population, fitness, tournament_size):
+#     selected_parents = []
+#     for _ in range(len(population)):
+#         participants_idx = np.random.choice(np.arange(len(population)), tournament_size, replace=False)
+#         best_idx = participants_idx[np.argmin(fitness[participants_idx])]
+#         selected_parents.append(population[best_idx])
+#     return np.array(selected_parents)
+
+
+# def blx_alpha_crossover(parents, offspring_size, alpha):
+#     offspring = np.empty(offspring_size)
+#     for i in range(0, offspring_size[0], 2):
+#         parent1_idx = i % parents.shape[0]
+#         parent2_idx = (i + 1) % parents.shape[0]
         
-        parent1 = parents[parent1_idx]
-        parent2 = parents[parent2_idx]
+#         parent1 = parents[parent1_idx]
+#         parent2 = parents[parent2_idx]
         
-        min_gene = np.minimum(parent1, parent2)
-        max_gene = np.maximum(parent1, parent2)
+#         min_gene = np.minimum(parent1, parent2)
+#         max_gene = np.maximum(parent1, parent2)
         
-        diff = max_gene - min_gene
-        lower_bound = min_gene - alpha * diff
-        upper_bound = max_gene + alpha * diff
+#         diff = max_gene - min_gene
+#         lower_bound = min_gene - alpha * diff
+#         upper_bound = max_gene + alpha * diff
         
-        offspring[i] = np.random.uniform(lower_bound, upper_bound)
-        if i + 1 < offspring_size[0]:
-            offspring[i + 1] = np.random.uniform(lower_bound, upper_bound)
+#         offspring[i] = np.random.uniform(lower_bound, upper_bound)
+#         if i + 1 < offspring_size[0]:
+#             offspring[i + 1] = np.random.uniform(lower_bound, upper_bound)
     
-    return offspring
+#     return offspring
 
 
-def mutate(offspring, mutation_rate, bounds):
-    for idx in range(offspring.shape[0]):
-        for gene_idx in range(offspring.shape[1]):
-            if np.random.rand() < mutation_rate:
-                offspring[idx, gene_idx] = np.random.randint(bound.low, bound.high + 1)
-        # Clamp values to be within the bounds using np.clip
-        offspring[idx] = np.clip(offspring[idx], lower_bound, upper_bound)
-    return offspring
+# def mutate(offspring, mutation_rate, bounds):
+#     for idx in range(offspring.shape[0]):
+#         for gene_idx in range(offspring.shape[1]):
+#             if np.random.rand() < mutation_rate:
+#                 offspring[idx, gene_idx] = np.random.randint(bound.low, bound.high最大化問題最大化問題
+#         # Clamp values to be within the bounds using np.clip
+#         offspring[idx] = np.clip(offspring[idx], lower_bound, upper_bound)
+#     return offspring
+
+
+
+# def genetic_algorithm(objective_function, pop_size, gene_length, num_generations, crossover_rate,
+#                       mutation_rate, bounds, alpha, tournament_size, f_GA):
+#     best_fitness = float("inf")
+#     best_individual = None
+
+#     population = initialize_population(pop_size, gene_length, bounds)
+    
+#     gene_history=population.copy() # 粒子の現在位置を記録     粒子数*num_grid
+
+#     for generation in range(num_generations):
+#         fitness = calculate_fitness(population, objective_function)
+
+#         current_best_fitness = np.min(fitness)
+#         current_best_individual = population[np.argmin(fitness)]
+
+#         if current_best_fitness < best_fitness:
+#             f_GA.write(f"{current_best_fitness=},  {best_fitness=}")
+#             best_fitness = current_best_fitness.copy()
+#             best_individual = current_best_individual.copy()
+
+
+#         print(f"Generation {generation + 1}: Best Fitness = {best_fitness}, Best Individual = {best_individual}")
+#         f_GA.write(f"\nGeneration {generation + 1}: Best Fitness = {best_fitness}, Best Individual = {best_individual}")
+#         parents = tournament_selection(population, fitness, tournament_size)
+
+#         offspring_size = (int(pop_size * crossover_rate), gene_length)
+#         offspring = blx_alpha_crossover(parents, offspring_size, alpha)
+
+#         offspring = mutate(offspring, mutation_rate, bounds)
+        
+#         population[0:offspring.shape[0]] = offspring
+#         if generation < num_generations - 1:
+#             gene_history = np.vstack((gene_history, population.copy()))  # 粒子の現在位置を記録
+
+#     f_GA.write(f"\n{gene_history=}")
+#     return best_fitness, best_individual
+
+# 遺伝的アルゴリズムのパラメータ設定
+LOWER_BOUNDS = [0, 0]  # 各次元の下限
+UPPER_BOUNDS = [39, 96]# 各次元の上限
 
 
 
 def genetic_algorithm(objective_function, pop_size, gene_length, num_generations, crossover_rate,
-                      mutation_rate, bounds, alpha, tournament_size, f_GA):
-    best_fitness = float("inf")
-    best_individual = None
+                       mutation_rate, alpha, tournament_size, f_GA):
+        # creatorの再定義を防ぐ
+    if not hasattr(creator, "FitnessMin"):
+        creator.create("FitnessMin", base.Fitness, weights=(-1.0,)) # weights=(1.0,)なら最大化問題
+    if not hasattr(creator, "Individual"):
+        creator.create("Individual", list, fitness=creator.FitnessMin)
 
-    population = initialize_population(pop_size, gene_length, bounds)
-    
-    gene_history=population.copy() # 粒子の現在位置を記録     粒子数*num_grid
+    # 基本設定を行います
+    toolbox = base.Toolbox()
+    random_state = check_random_state(None)
 
+    # 各次元の値を生成する関数を登録
+    for i in range(len(LOWER_BOUNDS)):
+        toolbox.register(f"attr_int_{i}", random_state.randint, LOWER_BOUNDS[i], UPPER_BOUNDS[i] + 1)
+
+    # 個体の作成方法を登録
+    toolbox.register("individual", tools.initCycle, creator.Individual,
+                    [getattr(toolbox, f"attr_int_{i}") for i in range(len(LOWER_BOUNDS))], n=1)
+    # 集団の作成方法を登録
+    toolbox.register("population", tools.initRepeat, list, toolbox.individual)
+
+    # 評価関数を登録
+    toolbox.register("evaluate", objective_function)
+    # 交叉方法を登録
+    toolbox.register("mate", tools.cxTwoPoint) #2点交叉
+
+    # 突然変異方法を登録（範囲内で突然変異を行います）
+    def mutate(individual):
+        i = random_state.randint(0, len(individual))
+        individual[i] = random_state.randint(LOWER_BOUNDS[i], UPPER_BOUNDS[i] + 1)
+        return (individual,)
+
+    toolbox.register("mutate", mutate)
+    # 個体選択方法を登録
+    toolbox.register("select", tools.selTournament, tournsize=tournament_size)
+
+    # 初期集団の作成
+    population = toolbox.population(n=pop_size)
+
+    # 遺伝的アルゴリズムの実行
     for generation in range(num_generations):
-        fitness = calculate_fitness(population, objective_function)
+        f_GA.write(f'Generation {generation + 1}\n')
+        offspring = algorithms.varAnd(population, toolbox, crossover_rate, mutation_rate)
+        fits = list(map(toolbox.evaluate, offspring))
 
-        current_best_fitness = np.min(fitness)
-        current_best_individual = population[np.argmin(fitness)]
+        for fit, ind in zip(fits, offspring):
+            if not isinstance(fit, (list, tuple)):
+                fit = (fit,)
+            ind.fitness.values = fit
+            f_GA.write(f'Individual: {ind}, Fitness: {fit[0]}\n')
 
-        if current_best_fitness < best_fitness:
-            f_GA.write(f"{current_best_fitness=},  {best_fitness=}")
-            best_fitness = current_best_fitness.copy()
-            best_individual = current_best_individual.copy()
+        population = toolbox.select(offspring, k=len(population))
 
-
-        print(f"Generation {generation + 1}: Best Fitness = {best_fitness}, Best Individual = {best_individual}")
-        f_GA.write(f"\nGeneration {generation + 1}: Best Fitness = {best_fitness}, Best Individual = {best_individual}")
-        parents = tournament_selection(population, fitness, tournament_size)
-
-        offspring_size = (int(pop_size * crossover_rate), gene_length)
-        offspring = blx_alpha_crossover(parents, offspring_size, alpha)
-
-        offspring = mutate(offspring, mutation_rate, bounds)
-        
-        population[0:offspring.shape[0]] = offspring
-        if generation < num_generations - 1:
-            gene_history = np.vstack((gene_history, population.copy()))  # 粒子の現在位置を記録
-
-    f_GA.write(f"\n{gene_history=}")
-    return best_fitness, best_individual
+    best_individual = tools.selBest(population, k=1)[0]
+    return best_individual.fitness.values[0], best_individual

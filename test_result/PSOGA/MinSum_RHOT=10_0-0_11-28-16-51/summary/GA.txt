@@ -1,0 +1,60 @@
+Generation 1
+Individual: [0, 67], Fitness: 96.28056628918148
+Individual: [3, 9], Fitness: 92.96911141080523
+Individual: [19, 87], Fitness: 95.97242352894641
+Individual: [36, 21], Fitness: 94.16960901683744
+Individual: [6, 12], Fitness: 93.11467769242282
+Individual: [24, 88], Fitness: 96.3258600894386
+Individual: [1, 39], Fitness: 96.13698713222337
+Individual: [23, 46], Fitness: 95.59352758153031
+Individual: [24, 81], Fitness: 96.21186728035781
+Individual: [37, 25], Fitness: 95.95266360394453
+Generation 2
+Individual: [19, 88], Fitness: 96.04649227385197
+Individual: [24, 87], Fitness: 96.12169828950198
+Individual: [24, 81], Fitness: 96.21186728035781
+Individual: [24, 88], Fitness: 96.3258600894386
+Individual: [24, 81], Fitness: 96.21186728035781
+Individual: [24, 81], Fitness: 96.21186728035781
+Individual: [0, 67], Fitness: 96.28056628918148
+Individual: [0, 67], Fitness: 96.28056628918148
+Individual: [0, 88], Fitness: 97.59115196601334
+Individual: [24, 67], Fitness: 96.47327519176508
+Generation 3
+Individual: [24, 67], Fitness: 96.47327519176508
+Individual: [24, 88], Fitness: 96.3258600894386
+Individual: [0, 67], Fitness: 96.28056628918148
+Individual: [24, 81], Fitness: 96.21186728035781
+Individual: [0, 88], Fitness: 97.59115196601334
+Individual: [0, 88], Fitness: 97.59115196601334
+Individual: [0, 67], Fitness: 96.28056628918148
+Individual: [24, 88], Fitness: 96.3258600894386
+Individual: [0, 81], Fitness: 96.67375267716041
+Individual: [24, 67], Fitness: 96.47327519176508
+Generation 4
+Individual: [24, 88], Fitness: 96.3258600894386
+Individual: [0, 67], Fitness: 96.28056628918148
+Individual: [24, 88], Fitness: 96.3258600894386
+Individual: [24, 67], Fitness: 96.47327519176508
+Individual: [24, 67], Fitness: 96.47327519176508
+Individual: [0, 81], Fitness: 96.67375267716041
+Individual: [0, 88], Fitness: 97.59115196601334
+Individual: [24, 72], Fitness: 96.54551560906464
+Individual: [0, 81], Fitness: 96.67375267716041
+Individual: [0, 88], Fitness: 97.59115196601334
+Generation 5
+Individual: [0, 88], Fitness: 97.59115196601334
+Individual: [0, 81], Fitness: 96.67375267716041
+Individual: [0, 81], Fitness: 96.67375267716041
+Individual: [0, 81], Fitness: 96.67375267716041
+Individual: [0, 81], Fitness: 96.67375267716041
+Individual: [0, 20], Fitness: 97.76211835916668
+Individual: [0, 80], Fitness: 96.54022398001086
+Individual: [0, 88], Fitness: 97.59115196601334
+Individual: [0, 88], Fitness: 97.59115196601334
+Individual: [0, 69], Fitness: 95.86667199332965
+
+最小値:97.76211835916668
+入力値:[0, 20]
+経過時間:245.4564232826233sec
+num_evaluation of BBF = 50.0

@@ -37,12 +37,12 @@ num_input_grid = 1 # ある一つの地点を制御
 Opt_purpose = "MinMax" #MinSum, MinMax, MaxSum, MaxMinから選択
 Opt_score = 90.17641435518946 #None or 最適値
 # bounds に整数の範囲を指定する highまで探索範囲であることに注意
-bounds = [Integer(low=0, high=39, prior='uniform', transform='normalize', name = "Y-grid"),  # Y次元目: 0以上40未満の整数 (0～39)
-          Integer(low=0, high=96, prior='uniform', transform='normalize', name = "Z-grid")]  # Z次元目: 0以上97未満の整数 (0～96)
+bounds = [Integer(low=15, high=24, prior='uniform', transform='normalize', name = "Y-grid"),  # Y次元目: 0以上40未満の整数 (0～39)
+          Integer(low=0, high=30, prior='uniform', transform='normalize', name = "Z-grid")]  # Z次元目: 0以上97未満の整数 (0～96)
 
 BO_acq_func = "EI" #gp_hedge, PI, EI, LCB
-initial_design_numdata_vec = [10] #BOのRS回数
-max_iter_vec = [15, 15, 20, 50, 50, 50, 50, 50, 50, 50]            #{10, 20, 20, 50]=10, 30, 50, 100と同値
+initial_design_numdata_vec = [5] #BOのRS回数
+max_iter_vec = [10, 10, 10, 10, 10]            #{10, 20, 20, 50]=10, 30, 50, 100と同値
 random_iter_vec = max_iter_vec
 
 trial_num = 10  #箱ひげ図作成時の繰り返し回数

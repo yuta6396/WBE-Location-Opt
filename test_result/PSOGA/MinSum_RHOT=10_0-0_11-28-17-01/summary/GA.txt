@@ -1,0 +1,47 @@
+Generation 1
+Individual: [0, 67], Fitness: 96.28056628918148
+Individual: [3, 9], Fitness: 92.96911141080523
+Individual: [19, 87], Fitness: 95.97242352894641
+Individual: [36, 21], Fitness: 94.16960901683744
+Individual: [6, 12], Fitness: 93.11467769242282
+Individual: [24, 88], Fitness: 96.3258600894386
+Individual: [1, 39], Fitness: 96.13698713222337
+Individual: [23, 46], Fitness: 95.59352758153031
+Individual: [24, 81], Fitness: 96.21186728035781
+Individual: [37, 25], Fitness: 95.95266360394453
+Individual: [13, 72], Fitness: 96.55285008843359
+Individual: [9, 20], Fitness: 96.23335305131495
+Individual: [16, 47], Fitness: 96.98049236168669
+Individual: [15, 69], Fitness: 96.38237472778214
+Individual: [0, 88], Fitness: 97.59115196601334
+Individual: [35, 82], Fitness: 96.24708119173324
+Individual: [29, 19], Fitness: 92.04943718415285
+Individual: [19, 14], Fitness: 95.80071017750669
+Individual: [39, 9], Fitness: 94.40345851335809
+Individual: [1, 32], Fitness: 95.7290154806415
+Generation 2
+Individual: [13, 72], Fitness: 96.55285008843359
+Individual: [13, 72], Fitness: 96.55285008843359
+Individual: [1, 14], Fitness: 94.93047197801084
+Individual: [19, 39], Fitness: 96.63340337029129
+Individual: [0, 72], Fitness: 95.54686420804859
+Individual: [13, 88], Fitness: 96.27026856263896
+Individual: [37, 25], Fitness: 95.95266360394453
+Individual: [37, 25], Fitness: 95.95266360394453
+Individual: [13, 14], Fitness: 96.66445216712044
+Individual: [19, 72], Fitness: 96.80259813746343
+Individual: [0, 47], Fitness: 95.08028574618513
+Individual: [16, 88], Fitness: 96.26422299377458
+Individual: [37, 88], Fitness: 96.54475329927274
+Individual: [24, 25], Fitness: 90.18322459292332
+Individual: [24, 82], Fitness: 96.3681781847283
+Individual: [35, 81], Fitness: 96.23856512624738
+Individual: [6, 47], Fitness: 95.83028897139202
+Individual: [16, 12], Fitness: 93.77953654709509
+Individual: [24, 81], Fitness: 96.21186728035781
+Individual: [1, 39], Fitness: 96.13698713222337
+
+最小値:96.80259813746343
+入力値:[19, 72]
+経過時間:179.1490044593811sec
+num_evaluation of BBF = 40.0

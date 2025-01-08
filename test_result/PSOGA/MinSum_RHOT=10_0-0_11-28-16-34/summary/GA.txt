@@ -1,0 +1,11 @@
+Generation 1
+Individual: [0, 67], Fitness: 96.28056628918148
+Individual: [3, 9], Fitness: 92.96911141080523
+Generation 2
+Individual: [3, 9], Fitness: 92.96911141080523
+Individual: [3, 9], Fitness: 92.96911141080523
+
+最小値:92.96911141080523
+入力値:[3, 9]
+経過時間:16.11275315284729sec
+num_evaluation of BBF = 4.0

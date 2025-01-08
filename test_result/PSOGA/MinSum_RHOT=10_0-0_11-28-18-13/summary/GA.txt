@@ -1,0 +1,200 @@
+Generation 1
+Individual: [0, 67], Fitness: 96.28056628918148
+Individual: [3, 9], Fitness: 92.96911141080523
+Individual: [19, 87], Fitness: 95.97242352894641
+Individual: [36, 21], Fitness: 94.16960901683744
+Individual: [6, 12], Fitness: 93.11467769242282
+Individual: [24, 88], Fitness: 96.3258600894386
+Individual: [1, 39], Fitness: 96.13698713222337
+Individual: [23, 46], Fitness: 95.59352758153031
+Individual: [24, 81], Fitness: 96.21186728035781
+Individual: [37, 25], Fitness: 95.95266360394453
+Generation 2
+Individual: [6, 9], Fitness: 91.45277198688828
+Individual: [3, 12], Fitness: 93.34724406526665
+Individual: [3, 9], Fitness: 92.96911141080523
+Individual: [1, 39], Fitness: 96.13698713222337
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [23, 21], Fitness: 91.032301437352
+Individual: [6, 9], Fitness: 91.45277198688828
+Individual: [3, 12], Fitness: 93.34724406526665
+Individual: [23, 21], Fitness: 91.032301437352
+Individual: [36, 46], Fitness: 88.43163694882288
+
+最小値:88.43163694882288
+入力値:[36, 46]
+経過時間:88.68196749687195sec
+num_evaluation of BBF = 20.0Generation 1
+Individual: [0, 67], Fitness: 96.28056628918148
+Individual: [3, 9], Fitness: 92.96911141080523
+Individual: [19, 87], Fitness: 95.97242352894641
+Individual: [36, 21], Fitness: 94.16960901683744
+Individual: [6, 12], Fitness: 93.11467769242282
+Individual: [24, 88], Fitness: 96.3258600894386
+Individual: [1, 39], Fitness: 96.13698713222337
+Individual: [23, 46], Fitness: 95.59352758153031
+Individual: [24, 81], Fitness: 96.21186728035781
+Individual: [37, 25], Fitness: 95.95266360394453
+Generation 2
+Individual: [6, 9], Fitness: 91.45277198688828
+Individual: [3, 12], Fitness: 93.34724406526665
+Individual: [3, 9], Fitness: 92.96911141080523
+Individual: [1, 39], Fitness: 96.13698713222337
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [23, 21], Fitness: 91.032301437352
+Individual: [6, 9], Fitness: 91.45277198688828
+Individual: [3, 12], Fitness: 93.34724406526665
+Individual: [23, 21], Fitness: 91.032301437352
+Individual: [36, 46], Fitness: 88.43163694882288
+Generation 3
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [3, 9], Fitness: 92.96911141080523
+Individual: [23, 46], Fitness: 95.59352758153031
+Individual: [36, 21], Fitness: 94.16960901683744
+Individual: [23, 46], Fitness: 95.59352758153031
+Individual: [36, 21], Fitness: 94.16960901683744
+Individual: [36, 21], Fitness: 94.16960901683744
+Individual: [23, 46], Fitness: 95.59352758153031
+Generation 4
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 72], Fitness: 96.21157213937065
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 21], Fitness: 94.16960901683744
+Generation 5
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 20], Fitness: 94.94753141382431
+Individual: [36, 80], Fitness: 96.50481380664677
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 69], Fitness: 96.52777211441379
+
+最小値:88.43163694882288
+入力値:[36, 46]
+経過時間:239.42265152931213sec
+num_evaluation of BBF = 50.0Generation 1
+Individual: [0, 67], Fitness: 96.28056628918148
+Individual: [3, 9], Fitness: 92.96911141080523
+Individual: [19, 87], Fitness: 95.97242352894641
+Individual: [36, 21], Fitness: 94.16960901683744
+Individual: [6, 12], Fitness: 93.11467769242282
+Individual: [24, 88], Fitness: 96.3258600894386
+Individual: [1, 39], Fitness: 96.13698713222337
+Individual: [23, 46], Fitness: 95.59352758153031
+Individual: [24, 81], Fitness: 96.21186728035781
+Individual: [37, 25], Fitness: 95.95266360394453
+Generation 2
+Individual: [6, 9], Fitness: 91.45277198688828
+Individual: [3, 12], Fitness: 93.34724406526665
+Individual: [3, 9], Fitness: 92.96911141080523
+Individual: [1, 39], Fitness: 96.13698713222337
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [23, 21], Fitness: 91.032301437352
+Individual: [6, 9], Fitness: 91.45277198688828
+Individual: [3, 12], Fitness: 93.34724406526665
+Individual: [23, 21], Fitness: 91.032301437352
+Individual: [36, 46], Fitness: 88.43163694882288
+Generation 3
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [3, 9], Fitness: 92.96911141080523
+Individual: [23, 46], Fitness: 95.59352758153031
+Individual: [36, 21], Fitness: 94.16960901683744
+Individual: [23, 46], Fitness: 95.59352758153031
+Individual: [36, 21], Fitness: 94.16960901683744
+Individual: [36, 21], Fitness: 94.16960901683744
+Individual: [23, 46], Fitness: 95.59352758153031
+Generation 4
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 72], Fitness: 96.21157213937065
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 21], Fitness: 94.16960901683744
+Generation 5
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 20], Fitness: 94.94753141382431
+Individual: [36, 80], Fitness: 96.50481380664677
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 69], Fitness: 96.52777211441379
+Generation 6
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [15, 20], Fitness: 94.79940151402695
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Generation 7
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Generation 8
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Generation 9
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Generation 10
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 64], Fitness: 97.26691351932382
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [35, 46], Fitness: 97.04298907930419
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+Individual: [36, 46], Fitness: 88.43163694882288
+
+最小値:88.43163694882288
+入力値:[36, 46]
+経過時間:478.37898206710815sec
+num_evaluation of BBF = 100.0

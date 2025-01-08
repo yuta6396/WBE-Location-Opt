@@ -14,6 +14,7 @@ from zoneinfo import ZoneInfo
 from config import  time_interval_sec, w_max, w_min, gene_length, crossover_rate, mutation_rate,  alpha, tournament_size
 from optimize import *
 from analysis import *
+from calc_object_val import calculate_objective_func_val
 from make_directory import make_directory
 
 matplotlib.use('Agg')
@@ -27,16 +28,16 @@ PSOGAのシミュレーション
 #### User 設定変数 ##############
 
 input_var = "RHOT" # MOMY, RHOT, QVから選択
-input_size = 10 # 変更の余地あり
+input_size = 1 # 変更の余地あり
 Alg_vec = ["PSO", "GA"]
 num_input_grid = 3 #y=20~20+num_input_grid-1まで制御
-Opt_purpose = "MinSum" #MinSum, MinMax, MaxSum, MaxMinから選択
+Opt_purpose = "MinMax" #MinSum, MinMax, MaxSum, MaxMinから選択
 
 bounds = [Integer(low=0, high=39, prior='uniform', transform='normalize', name = "Y-grid"),  # Y次元目: 0以上40未満の整数 (0～39)
           Integer(low=0, high=96, prior='uniform', transform='normalize', name = "Z-grid")]
 
-particles_vec = [2]           # 粒子数
-iterations_vec = [2]        # 繰り返し回数
+particles_vec = [10, 10, 10, 20, 20, 20]           # 粒子数
+iterations_vec = [2, 3, 5, 2, 3, 5]        # 繰り返し回数
 pop_size_vec = particles_vec  # Population size
 num_generations_vec = iterations_vec  # Number of generations
 
@@ -44,7 +45,7 @@ num_generations_vec = iterations_vec  # Number of generations
 c1 = 2.0
 c2 = 2.0
 
-trial_num = 1  # 乱数種の数
+trial_num = 10  # 乱数種の数
 trial_base = 0
 
 dpi = 75 # 画像の解像度　スクリーンのみなら75以上　印刷用なら300以上
@@ -100,6 +101,7 @@ def update_netcdf(init: str, output: str, pe: int, input_values):
     if  Grid_y >= 20:
         pe_this_y = 1
         Grid_y -= 20
+    print(f"Grid_y type: {type(Grid_y)}, value: {Grid_y}")
 
     with netCDF4.Dataset(init) as src, netCDF4.Dataset(output, "w") as dst:
         # グローバル属性のコピー
@@ -116,7 +118,7 @@ def update_netcdf(init: str, output: str, pe: int, input_values):
             if name == input_var:
                 var = src[name][:]
                 if pe == pe_this_y:  # y=Grid_yのときに変更処理
-                    var[Grid_y, 0, Grid_z] += input_size # (y,x,z)
+                    var[int(Grid_y), 0, int(Grid_z)] += input_size # (y,x,z)
                     # var[Grid_y, 0, Grid_z] *= (1-intervation_size) (0~1)
                 dst[name][:] = var
             else:
@@ -291,7 +293,7 @@ with open(PSO_file, 'w') as f_PSO, open(GA_file, 'w') as f_GA:
 
             sum_co, sum_no = sim(best_position)
             calculate_PREC_rate(sum_co, sum_no)
-            PSO_ratio_matrix[exp_i, trial_i] = calculate_PREC_rate(sum_co, sum_no)
+            PSO_ratio_matrix[exp_i, trial_i] = calculate_objective_func_val(sum_co, Opt_purpose)
             PSO_time_matrix[exp_i, trial_i] = time_diff
 
             print(f"乱数種：{trial_i}, 関数評価回数の上限：{cnt_vec[exp_i]}")
@@ -302,8 +304,7 @@ with open(PSO_file, 'w') as f_PSO, open(GA_file, 'w') as f_GA:
             # Run GA with the black_box_function as the fitness function
             best_fitness, best_individual = genetic_algorithm(black_box_function,
                 pop_size_vec[exp_i], gene_length, num_generations_vec[exp_i],
-                crossover_rate, mutation_rate, lower_bound, upper_bound,
-                alpha, tournament_size, f_GA)
+                crossover_rate, mutation_rate, alpha, tournament_size, f_GA)
             end = time.time()  # 現在時刻（処理完了後）を取得
             time_diff = end - start
 
@@ -313,7 +314,7 @@ with open(PSO_file, 'w') as f_PSO, open(GA_file, 'w') as f_GA:
             f_GA.write(f"\nnum_evaluation of BBF = {cnt_vec[exp_i]}")
 
             sum_co, sum_no = sim(best_individual)
-            GA_ratio_matrix[exp_i, trial_i] = calculate_PREC_rate(sum_co, sum_no)
+            GA_ratio_matrix[exp_i, trial_i] = calculate_objective_func_val(sum_co, Opt_purpose)
             GA_time_matrix[exp_i, trial_i] = time_diff
 
 
